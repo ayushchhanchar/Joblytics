@@ -23,7 +23,8 @@ export default function Login() {
       const res = await axios.post("http://localhost:3000/api/signin", data);
       console.log(res.data);
       alert("Login successful");
-      // Save token to localStorage/cookie and redirect
+      localStorage.setItem("token", res.data.token);
+      window.location.href = "/dashboard";
     } catch (err: any) {
       console.error(err.response?.data || err.message);
     }

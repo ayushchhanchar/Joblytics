@@ -9,5 +9,6 @@ exports.addApplicationSchema = zod_1.z.object({
     jobUrl: zod_1.z.string().url("Invalid job URL"),
     location: zod_1.z.string().min(1, "Location is required"),
     status: zod_1.z.nativeEnum(client_1.ApplicationStatus).default(client_1.ApplicationStatus.APPLIED).optional(),
-    appliedAt: zod_1.z.date().optional(),
+    appliedAt: zod_1.z
+        .preprocess((val) => typeof val === "string" || val instanceof Date ? new Date(val) : undefined, zod_1.z.date().optional()),
 });
