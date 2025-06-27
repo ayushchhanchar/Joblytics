@@ -5,19 +5,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
+const application_routes_1 = __importDefault(require("./routes/application.routes"));
 const cors_1 = __importDefault(require("cors"));
 require("dotenv").config();
-process.on("uncaughtException", (err) => {
-    console.error("Uncaught Exception:", err);
-});
-process.on("unhandledRejection", (reason) => {
-    console.error("Unhandled Rejection:", reason);
-});
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use("/uploads", express_1.default.static("uploads"));
 app.use("/api", auth_routes_1.default);
+app.use("/api", application_routes_1.default);
 app.listen(3000, () => {
     console.log("Server is running on port 3000");
 });

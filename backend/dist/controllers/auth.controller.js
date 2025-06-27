@@ -48,11 +48,9 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             resumeText,
         },
     });
-    const token = (0, jwt_1.signToken)(user.id);
     res
         .status(201)
-        .json({ token, user: { id: user.id, name: user.name, email: user.email } });
-    //   return Promise.resolve();/
+        .json({ user: { id: user.id, name: user.name, email: user.email } });
 });
 exports.register = register;
 const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
