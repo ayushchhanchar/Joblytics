@@ -7,12 +7,6 @@ const express_1 = __importDefault(require("express"));
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const cors_1 = __importDefault(require("cors"));
 require("dotenv").config();
-process.on("uncaughtException", (err) => {
-    console.error("Uncaught Exception:", err);
-});
-process.on("unhandledRejection", (reason) => {
-    console.error("Unhandled Rejection:", reason);
-});
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
