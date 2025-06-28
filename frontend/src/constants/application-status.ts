@@ -1,18 +1,17 @@
 export const ApplicationStatusList = [
   "APPLIED",
-  "INTERVIEW",
+  "INTERVIEWING",
   "OFFER",
   "REJECTED",
-  "HIRED",
+  "GHOSTED",
 ] as const;
 
 export type ApplicationStatus = (typeof ApplicationStatusList)[number];
 
-// Optional map for displaying nice labels
 export const ApplicationStatusLabels: Record<ApplicationStatus, string> = {
   APPLIED: "Applied",
-  INTERVIEW: "Interview",
+  INTERVIEWING: "Interviewing",
   OFFER: "Offer",
   REJECTED: "Rejected",
-  HIRED: "Hired",
-};
+  GHOSTED: "Ghosted",
+};  

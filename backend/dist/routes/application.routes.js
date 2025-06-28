@@ -8,4 +8,8 @@ const auth_middleware_1 = require("../middlewares/auth.middleware");
 const auth_routes_1 = __importDefault(require("./auth.routes"));
 //@ts-ignore
 auth_routes_1.default.post("/add-applications", auth_middleware_1.requireAuth, application_controller_1.addApplication);
+//@ts-ignore
+auth_routes_1.default.get("/get-applications", auth_middleware_1.requireAuth, application_controller_1.getApplication);
+//@ts-ignore
+auth_routes_1.default.patch("/applications/:id", auth_middleware_1.requireAuth, application_controller_1.updateApplicationStatus);
 exports.default = auth_routes_1.default;

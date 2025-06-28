@@ -19,7 +19,7 @@ const requireAuth = (req, res, next) => {
         next();
     }
     catch (_a) {
-        return res.status(401).json({ error: "Invalid token" });
+        res.status(401).json({ error: "Invalid token" });
     }
 };
 exports.requireAuth = requireAuth;

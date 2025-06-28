@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addApplication = void 0;
+exports.updateApplicationStatus = exports.getApplication = exports.addApplication = void 0;
 const auth_application_1 = require("../validators/auth.application");
 const prisma_1 = require("../conifg/prisma");
 const client_1 = require("@prisma/client");
@@ -38,3 +38,40 @@ const addApplication = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.addApplication = addApplication;
+const getApplication = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
+        const applications = yield prisma_1.Client.application.findMany({
+            where: {
+                userId: req.user.userId,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+        });
+        res.send(applications);
+    }
+    catch (err) {
+        res.status(500).send().json({ error: "Could not fetch applications" });
+    }
+});
+exports.getApplication = getApplication;
+const updateApplicationStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const { status } = req.body;
+    console.log("ststus-----", status);
+    console.log("id-----", id);
+    try {
+        const updated = yield prisma_1.Client.application.update({
+            where: { id },
+            data: { status: status },
+        });
+        res.json({ application: updated });
+    }
+    catch (err) {
+        console.error("error--------------", err);
+        res.status(500).json({ error: "Could not update application status" });
+    }
+});
+exports.updateApplicationStatus = updateApplicationStatus;

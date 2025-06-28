@@ -57,13 +57,14 @@ export default function Register() {
         />
         {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
 
-        <input type="file" {...register("resume")} className="w-full" />
+        <input type="file" {...register("resume")}  className="w-full p-2 border rounded" />
         {errors.resume && <p className="text-red-500 text-sm">Resume is required</p>}
 
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
           Register
         </button>
       </form>
+      <h3>Already have an account? <a className="text-red-500 hover:text-red-700 hover:underline" href="/login">Login</a></h3>
     </div>
   );
 }

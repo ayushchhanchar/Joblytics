@@ -30,3 +30,41 @@ export const addApplication = async (req: Request & { user?: any }, res: Respons
     return res.status(500).json({ error: "Could not create application" });
   }
 };
+
+export const getApplication = async (req: Request & { user?: any }, res: Response) => {
+
+  try {
+     const userId = req.user?.userId;
+    const applications = await Client.application.findMany({
+      where: {
+        userId: req.user.userId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+res.send(applications);
+  } catch (err) {
+  res.status(500).send().json({ error: "Could not fetch applications" });
+  }
+}
+
+export const updateApplicationStatus=async(req:Request & {user?:any},res:Response)=>{
+
+const { id } = req.params;
+  const { status } = req.body;
+  console.log("ststus-----",status);
+  console.log("id-----",id);
+
+  try {
+    const updated = await Client.application.update({
+      where: { id },
+      data: { status: status as ApplicationStatus },
+    });
+
+    res.json({ application: updated });
+  } catch (err) {
+    console.error("error--------------",err);
+    res.status(500).json({ error: "Could not update application status" });
+  }
+};

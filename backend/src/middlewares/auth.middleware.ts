@@ -21,6 +21,6 @@ export const requireAuth = (
     req.user = payload; 
     next();
   } catch {
-    return res.status(401).json({ error: "Invalid token" });
+  res.status(401).json({ error: "Invalid token" });
   }
 };
