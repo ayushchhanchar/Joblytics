@@ -58,20 +58,40 @@ const getApplication = (req, res) => __awaiter(void 0, void 0, void 0, function*
 });
 exports.getApplication = getApplication;
 const updateApplicationStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("Updating Application:", req.body);
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, company, role, jobUrl, location, appliedAt } = req.body;
     console.log("ststus-----", status);
     console.log("id-----", id);
     try {
+        // Build update data object - only include fields that are provided
+        const updateData = {};
+        if (status !== undefined) {
+            const isValidStatus = Object.values(client_1.ApplicationStatus).includes(status);
+            if (!isValidStatus) {
+                return res.status(400).json({ error: "Invalid status value" });
+            }
+            updateData.status = status;
+        }
+        if (company !== undefined)
+            updateData.company = company;
+        if (role !== undefined)
+            updateData.role = role;
+        if (jobUrl !== undefined)
+            updateData.jobUrl = jobUrl;
+        if (location !== undefined)
+            updateData.location = location;
+        if (appliedAt !== undefined)
+            updateData.appliedAt = new Date(appliedAt);
         const updated = yield prisma_1.Client.application.update({
             where: { id },
-            data: { status: status },
+            data: updateData,
         });
         res.json({ application: updated });
     }
     catch (err) {
         console.error("error--------------", err);
-        res.status(500).json({ error: "Could not update application status" });
+        res.status(500).json({ error: "Could not update application" });
     }
 });
 exports.updateApplicationStatus = updateApplicationStatus;

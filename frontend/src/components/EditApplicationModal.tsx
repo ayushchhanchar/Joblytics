@@ -98,6 +98,7 @@ export function EditApplicationModal({
   }, [application, open, setValue]);
 
   const onSubmit = async (data: FormData) => {
+    console.log("------------",data);
     if (!application) return;
 
     setIsLoading(true);
@@ -108,6 +109,7 @@ export function EditApplicationModal({
         ...data,
         appliedAt: data.appliedAt || new Date(),
       };
+      console.log("payload-----",payload);
 
       await axios.patch(
         `http://localhost:3000/api/applications/${application.id}`,
