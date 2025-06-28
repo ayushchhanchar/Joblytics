@@ -5,6 +5,7 @@ import { ApplicationsTable } from '../components/dashboard/ApplicationsTable';
 import { ResumeAnalyzer } from '../components/dashboard/ResumeAnalyzer';
 import { InsightsWidget } from '../components/dashboard/InsightsWidget';
 import { AddApplicationModal } from '../components/AddApplicationModal';
+import { EditApplicationModal } from '../components/EditApplicationModal';
 import { Button } from '../components/ui/button';
 import { Plus } from 'lucide-react';
 import axios from 'axios';
@@ -13,6 +14,8 @@ export default function Dashboard() {
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<any>(null);
 
   // Mock user data - in real app, this would come from auth context
   const userName = "John";
@@ -51,6 +54,30 @@ export default function Dashboard() {
 
   const handleAddSuccess = () => {
     fetchApplications();
+  };
+
+  const handleEditSuccess = () => {
+    fetchApplications();
+  };
+
+  const handleEdit = (application: any) => {
+    setSelectedApplication(application);
+    setShowEditModal(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to delete this application?')) {
+      try {
+        await axios.delete(`http://localhost:3000/api/applications/${id}`, {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        });
+        fetchApplications();
+      } catch (err: any) {
+        console.error("Error deleting application:", err.response?.data || err.message);
+      }
+    }
   };
 
   if (loading) {
@@ -92,8 +119,8 @@ export default function Dashboard() {
           <div className="xl:col-span-2">
             <ApplicationsTable 
               applications={recentApplications}
-              onEdit={(app) => console.log('Edit:', app)}
-              onDelete={(id) => console.log('Delete:', id)}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
               onAddClick={() => setShowAddModal(true)}
             />
           </div>
@@ -110,6 +137,14 @@ export default function Dashboard() {
           open={showAddModal}
           onOpenChange={setShowAddModal}
           onSuccess={handleAddSuccess}
+        />
+
+        {/* Edit Application Modal */}
+        <EditApplicationModal
+          open={showEditModal}
+          onOpenChange={setShowEditModal}
+          onSuccess={handleEditSuccess}
+          application={selectedApplication}
         />
       </div>
     </DashboardLayout>

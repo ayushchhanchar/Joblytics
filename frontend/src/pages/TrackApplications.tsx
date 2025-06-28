@@ -4,6 +4,7 @@ import { DashboardLayout } from "../components/layout/DashboardLayout";
 import { ApplicationsTable } from "../components/dashboard/ApplicationsTable";
 import { StatsCards } from "../components/dashboard/StatsCards";
 import { AddApplicationModal } from "../components/AddApplicationModal";
+import { EditApplicationModal } from "../components/EditApplicationModal";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
@@ -21,6 +22,8 @@ export default function TrackApplications() {
   const [applications, setApplications] = useState<any[]>([]);
   const [filteredApplications, setFilteredApplications] = useState<any[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -75,8 +78,8 @@ export default function TrackApplications() {
   };
 
   const handleEdit = (application: any) => {
-    // TODO: Implement edit functionality
-    console.log('Edit application:', application);
+    setSelectedApplication(application);
+    setShowEditModal(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -95,6 +98,10 @@ export default function TrackApplications() {
   };
 
   const handleAddSuccess = () => {
+    fetchApplications();
+  };
+
+  const handleEditSuccess = () => {
     fetchApplications();
   };
 
@@ -199,6 +206,14 @@ export default function TrackApplications() {
           open={showAddModal}
           onOpenChange={setShowAddModal}
           onSuccess={handleAddSuccess}
+        />
+
+        {/* Edit Application Modal */}
+        <EditApplicationModal
+          open={showEditModal}
+          onOpenChange={setShowEditModal}
+          onSuccess={handleEditSuccess}
+          application={selectedApplication}
         />
       </div>
     </DashboardLayout>

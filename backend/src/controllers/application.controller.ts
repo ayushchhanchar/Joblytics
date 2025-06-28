@@ -52,22 +52,33 @@ res.send(applications);
 export const updateApplicationStatus=async(req:Request & {user?:any},res:Response)=>{
 
 const { id } = req.params;
-  const { status } = req.body;
+  const { status, company, role, jobUrl, location, appliedAt } = req.body;
   console.log("ststus-----",status);
   console.log("id-----",id);
 
   try {
+    // Build update data object - only include fields that are provided
+    const updateData: any = {};
+    
+    if (status !== undefined) updateData.status = status as ApplicationStatus;
+    if (company !== undefined) updateData.company = company;
+    if (role !== undefined) updateData.role = role;
+    if (jobUrl !== undefined) updateData.jobUrl = jobUrl;
+    if (location !== undefined) updateData.location = location;
+    if (appliedAt !== undefined) updateData.appliedAt = new Date(appliedAt);
+
     const updated = await Client.application.update({
       where: { id },
-      data: { status: status as ApplicationStatus },
+      data: updateData,
     });
 
     res.json({ application: updated });
   } catch (err) {
     console.error("error--------------",err);
-    res.status(500).json({ error: "Could not update application status" });
+    res.status(500).json({ error: "Could not update application" });
   }
 };
+
 export const deleteApplication=async(req:Request & {user?:any},res:Response)=>{
 
   const { id } = req.params;
