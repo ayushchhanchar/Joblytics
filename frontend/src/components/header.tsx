@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { BarChart3, Menu, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { ModeToggle } from './ui/mode-toggle';
+import { useNavigate } from 'react-router-dom';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate=useNavigate();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -26,10 +28,10 @@ export function Header() {
             FAQ
           </a>
           <ModeToggle />
-          <Button variant="outline" size="sm">
+          <Button onClick={() => {navigate('/login')}} variant="outline" size="sm">
             Sign In
           </Button>
-          <Button size="sm">
+          <Button onClick={() => {navigate('/register')}} size="sm">
             Get Started
           </Button>
         </nav>
