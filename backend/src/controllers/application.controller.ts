@@ -68,3 +68,16 @@ const { id } = req.params;
     res.status(500).json({ error: "Could not update application status" });
   }
 };
+export const deleteApplication=async(req:Request & {user?:any},res:Response)=>{
+
+  const { id } = req.params;
+  try {
+    const deleted = await Client.application.delete({
+      where: { id },
+    });
+    res.json({ application: deleted });
+  } catch (err) {
+    console.error("error--------------",err);
+    res.status(500).json({ error: "Could not delete application" });
+  }
+}

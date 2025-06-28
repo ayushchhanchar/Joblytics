@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateApplicationStatus = exports.getApplication = exports.addApplication = void 0;
+exports.deleteApplication = exports.updateApplicationStatus = exports.getApplication = exports.addApplication = void 0;
 const auth_application_1 = require("../validators/auth.application");
 const prisma_1 = require("../conifg/prisma");
 const client_1 = require("@prisma/client");
@@ -75,3 +75,17 @@ const updateApplicationStatus = (req, res) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.updateApplicationStatus = updateApplicationStatus;
+const deleteApplication = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const deleted = yield prisma_1.Client.application.delete({
+            where: { id },
+        });
+        res.json({ application: deleted });
+    }
+    catch (err) {
+        console.error("error--------------", err);
+        res.status(500).json({ error: "Could not delete application" });
+    }
+});
+exports.deleteApplication = deleteApplication;
