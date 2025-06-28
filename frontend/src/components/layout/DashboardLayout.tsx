@@ -19,14 +19,20 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background flex justify-center ">
+    <div className="min-h-screen bg-background">
+      {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
-      <div className="lg:pl-64">
+      {/* Main Content Area */}
+      <div className="flex flex-col lg:ml-64 min-h-screen">
+        {/* Top Navigation */}
         <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
         
-        <main className="p-6">
-          {children}
+        {/* Main Content */}
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>

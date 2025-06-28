@@ -85,7 +85,7 @@ export default function ResumeATS() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold">Resume ATS Analyzer</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Resume ATS Analyzer</h1>
           <p className="text-muted-foreground mt-1">
             Upload your resume to analyze ATS compatibility and get optimization suggestions
           </p>
@@ -102,7 +102,7 @@ export default function ResumeATS() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="resume">Choose your resume file</Label>
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
                 <Input
                   id="resume"
                   type="file"
@@ -113,7 +113,7 @@ export default function ResumeATS() {
                 <Button 
                   onClick={handleAnalyze}
                   disabled={!file || analyzing}
-                  className="min-w-[120px]"
+                  className="min-w-[120px] w-full sm:w-auto"
                 >
                   {analyzing ? (
                     <>
@@ -140,16 +140,16 @@ export default function ResumeATS() {
                 <p className="text-muted-foreground mb-4">
                   Get instant feedback on ATS compatibility and optimization tips
                 </p>
-                <div className="flex justify-center space-x-4 text-sm text-muted-foreground">
-                  <div className="flex items-center">
+                <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4 text-sm text-muted-foreground">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="h-4 w-4 mr-1 text-green-600" />
                     ATS Score
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="h-4 w-4 mr-1 text-blue-600" />
                     Keyword Analysis
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <CheckCircle className="h-4 w-4 mr-1 text-purple-600" />
                     Improvement Tips
                   </div>
@@ -161,15 +161,15 @@ export default function ResumeATS() {
 
         {/* Analysis Results */}
         {results && (
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-6 xl:grid-cols-3">
             {/* Overall Score */}
-            <Card className="lg:col-span-1">
+            <Card className="xl:col-span-1">
               <CardHeader>
                 <CardTitle>ATS Compatibility Score</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-center">
-                  <div className={`text-6xl font-bold ${getScoreColor(results.score)} mb-2`}>
+                  <div className={`text-4xl md:text-6xl font-bold ${getScoreColor(results.score)} mb-2`}>
                     {results.score}%
                   </div>
                   <Badge 
@@ -204,12 +204,12 @@ export default function ResumeATS() {
             </Card>
 
             {/* Section Breakdown */}
-            <Card className="lg:col-span-2">
+            <Card className="xl:col-span-2">
               <CardHeader>
                 <CardTitle>Section Analysis</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   {Object.entries(results.sections).map(([section, data]: [string, any]) => (
                     <div key={section} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center space-x-3">
@@ -233,7 +233,7 @@ export default function ResumeATS() {
             </Card>
 
             {/* Suggestions */}
-            <Card className="lg:col-span-3">
+            <Card className="xl:col-span-3">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <TrendingUp className="h-5 w-5 mr-2" />
@@ -241,7 +241,7 @@ export default function ResumeATS() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2">
                   {results.suggestions.map((suggestion: string, index: number) => (
                     <div key={index} className="flex items-start space-x-3 p-3 border rounded-lg">
                       <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
@@ -263,7 +263,7 @@ export default function ResumeATS() {
               <CardTitle>ATS Optimization Tips</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-2">
                   <h4 className="font-medium">Use Standard Headings</h4>
                   <p className="text-sm text-muted-foreground">

@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
-import { MoreHorizontal, Edit, Trash2, ExternalLink } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, ExternalLink, Briefcase } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,87 +57,97 @@ export function ApplicationsTable({ applications, onEdit, onDelete }: Applicatio
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>📂 Your Applications</span>
+          <span className="flex items-center">
+            <Briefcase className="h-5 w-5 mr-2" />
+            Your Applications
+          </span>
           <Button size="sm">Add Application</Button>
         </CardTitle>
       </CardHeader>
       <CardContent>
         {applications.length === 0 ? (
-          <div className="text-center py-8">
+          <div className="text-center py-12">
             <div className="text-muted-foreground mb-4">
               <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No applications yet</p>
+              <p className="text-lg font-medium mb-2">No applications yet</p>
               <p className="text-sm">Start tracking your job applications</p>
             </div>
             <Button>Add Your First Application</Button>
           </div>
         ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Job Title</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Applied Date</TableHead>
-                  <TableHead className="w-[50px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {applications.map((application) => (
-                  <TableRow key={application.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center space-x-2">
-                        <span>{application.role}</span>
-                        {application.jobUrl && (
-                          <a
-                            href={application.jobUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-muted-foreground hover:text-primary"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>{application.company}</TableCell>
-                    <TableCell>{application.location}</TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(application.status)}>
-                        {ApplicationStatusLabels[application.status]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(application.appliedAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onEdit?.(application)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => onDelete?.(application.id)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+          <div className="rounded-md border overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[200px]">Job Title</TableHead>
+                    <TableHead className="min-w-[150px]">Company</TableHead>
+                    <TableHead className="min-w-[120px] hidden md:table-cell">Location</TableHead>
+                    <TableHead className="min-w-[100px]">Status</TableHead>
+                    <TableHead className="min-w-[120px] hidden sm:table-cell">Applied Date</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {applications.map((application) => (
+                    <TableRow key={application.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center space-x-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium truncate">{application.role}</p>
+                            <p className="text-sm text-muted-foreground md:hidden">
+                              {application.company}
+                            </p>
+                          </div>
+                          {application.jobUrl && (
+                            <a
+                              href={application.jobUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-muted-foreground hover:text-primary flex-shrink-0"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">{application.company}</TableCell>
+                      <TableCell className="hidden md:table-cell">{application.location}</TableCell>
+                      <TableCell>
+                        <Badge className={`${getStatusColor(application.status)} text-xs`}>
+                          {ApplicationStatusLabels[application.status]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        {new Date(application.appliedAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => onEdit?.(application)}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => onDelete?.(application.id)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         )}
       </CardContent>

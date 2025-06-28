@@ -61,14 +61,14 @@ export default function Dashboard() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Welcome back, {userName}! 👋</h1>
+            <h1 className="text-2xl md:text-3xl font-bold">Welcome back, {userName}! 👋</h1>
             <p className="text-muted-foreground mt-1">
               Here's your job hunt overview
             </p>
           </div>
-          <Button>
+          <Button className="sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Add Application
           </Button>
@@ -76,14 +76,14 @@ export default function Dashboard() {
 
         {/* Quick Stats */}
         <section>
-          <h2 className="text-xl font-semibold mb-4">📌 Quick Stats</h2>
+          <h2 className="text-lg md:text-xl font-semibold mb-4">📌 Quick Stats</h2>
           <StatsCards stats={stats} />
         </section>
 
         {/* Main Content Grid */}
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Applications Table - Takes 2 columns */}
-          <div className="lg:col-span-2">
+        <div className="grid gap-6 xl:grid-cols-3">
+          {/* Applications Table - Takes 2 columns on xl screens */}
+          <div className="xl:col-span-2">
             <ApplicationsTable 
               applications={recentApplications}
               onEdit={(app) => console.log('Edit:', app)}

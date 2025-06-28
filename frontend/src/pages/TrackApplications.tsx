@@ -7,7 +7,7 @@ import AddApplicationForm from "../components/AddApplicationForm";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
-import { Plus, Filter, Search } from "lucide-react";
+import { Plus, Filter, Search, X } from "lucide-react";
 import { Input } from "../components/ui/input";
 import {
   DropdownMenu,
@@ -108,14 +108,14 @@ export default function TrackApplications() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Job Applications</h1>
+            <h1 className="text-2xl md:text-3xl font-bold">Job Applications</h1>
             <p className="text-muted-foreground mt-1">
               Track and manage all your job applications
             </p>
           </div>
-          <Button onClick={() => setShowForm(true)}>
+          <Button onClick={() => setShowForm(true)} className="sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Add Application
           </Button>
@@ -143,9 +143,13 @@ export default function TrackApplications() {
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="min-w-[120px]">
-                    <Filter className="h-4 w-4 mr-2" />
-                    {statusFilter === "all" ? "All Status" : ApplicationStatusLabels[statusFilter as keyof typeof ApplicationStatusLabels]}
+                  <Button variant="outline" className="min-w-[120px] justify-between">
+                    <div className="flex items-center">
+                      <Filter className="h-4 w-4 mr-2" />
+                      <span className="truncate">
+                        {statusFilter === "all" ? "All Status" : ApplicationStatusLabels[statusFilter as keyof typeof ApplicationStatusLabels]}
+                      </span>
+                    </div>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -171,7 +175,7 @@ export default function TrackApplications() {
                     onClick={() => setStatusFilter("all")}
                     className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5"
                   >
-                    ×
+                    <X className="h-3 w-3" />
                   </button>
                 </Badge>
               </div>

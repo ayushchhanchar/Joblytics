@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { ModeToggle } from '../ui/mode-toggle';
-import { Menu, User, Settings, LogOut } from 'lucide-react';
+import { Menu, User, Settings, LogOut, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface TopNavbarProps {
@@ -30,9 +30,10 @@ export function TopNavbar({ onMenuClick }: TopNavbarProps) {
   const userEmail = "john@example.com";
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center justify-between px-6">
-        <div className="flex items-center space-x-4">
+    <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-16 items-center justify-between px-4 md:px-6">
+        {/* Left side - Mobile menu button */}
+        <div className="flex items-center">
           <Button
             variant="ghost"
             size="icon"
@@ -40,18 +41,29 @@ export function TopNavbar({ onMenuClick }: TopNavbarProps) {
             className="lg:hidden"
           >
             <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle sidebar</span>
           </Button>
         </div>
 
-        <div className="flex items-center space-x-4">
+        {/* Right side - Actions and user menu */}
+        <div className="flex items-center space-x-2 md:space-x-4">
+          {/* Notifications */}
+          <Button variant="ghost" size="icon" className="relative">
+            <Bell className="h-5 w-5" />
+            <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full text-xs"></span>
+            <span className="sr-only">Notifications</span>
+          </Button>
+
+          {/* Theme toggle */}
           <ModeToggle />
           
+          {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
+              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                <Avatar className="h-9 w-9">
                   <AvatarImage src="/avatars/01.png" alt={userName} />
-                  <AvatarFallback>
+                  <AvatarFallback className="text-sm">
                     {userName.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
