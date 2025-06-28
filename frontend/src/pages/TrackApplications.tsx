@@ -3,7 +3,7 @@ import axios from "axios";
 import { DashboardLayout } from "../components/layout/DashboardLayout";
 import { ApplicationsTable } from "../components/dashboard/ApplicationsTable";
 import { StatsCards } from "../components/dashboard/StatsCards";
-import AddApplicationForm from "../components/AddApplicationForm";
+import { AddApplicationModal } from "../components/AddApplicationModal";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
@@ -20,7 +20,7 @@ import { ApplicationStatusLabels } from "../constants/application-status";
 export default function TrackApplications() {
   const [applications, setApplications] = useState<any[]>([]);
   const [filteredApplications, setFilteredApplications] = useState<any[]>([]);
-  const [showForm, setShowForm] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -94,6 +94,10 @@ export default function TrackApplications() {
     }
   };
 
+  const handleAddSuccess = () => {
+    fetchApplications();
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -115,7 +119,7 @@ export default function TrackApplications() {
               Track and manage all your job applications
             </p>
           </div>
-          <Button onClick={() => setShowForm(true)} className="sm:w-auto">
+          <Button onClick={() => setShowAddModal(true)} className="sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Add Application
           </Button>
@@ -185,29 +189,17 @@ export default function TrackApplications() {
               applications={filteredApplications}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onAddClick={() => setShowAddModal(true)}
             />
           </CardContent>
         </Card>
 
-        {/* Add Application Form Modal */}
-        {showForm && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
-              <CardHeader>
-                <CardTitle>Add New Application</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <AddApplicationForm
-                  onAdd={() => {
-                    fetchApplications();
-                    setShowForm(false);
-                  }}
-                  onClose={() => setShowForm(false)}
-                />
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        {/* Add Application Modal */}
+        <AddApplicationModal
+          open={showAddModal}
+          onOpenChange={setShowAddModal}
+          onSuccess={handleAddSuccess}
+        />
       </div>
     </DashboardLayout>
   );

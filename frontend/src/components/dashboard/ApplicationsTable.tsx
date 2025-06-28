@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
-import { MoreHorizontal, Edit, Trash2, ExternalLink, Briefcase } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, ExternalLink, Briefcase, Plus } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,9 +33,10 @@ interface ApplicationsTableProps {
   applications: Application[];
   onEdit?: (application: Application) => void;
   onDelete?: (id: string) => void;
+  onAddClick?: () => void;
 }
 
-export function ApplicationsTable({ applications, onEdit, onDelete }: ApplicationsTableProps) {
+export function ApplicationsTable({ applications, onEdit, onDelete, onAddClick }: ApplicationsTableProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'APPLIED':
@@ -61,7 +62,12 @@ export function ApplicationsTable({ applications, onEdit, onDelete }: Applicatio
             <Briefcase className="h-5 w-5 mr-2" />
             Your Applications
           </span>
-          <Button size="sm">Add Application</Button>
+          {onAddClick && (
+            <Button size="sm" onClick={onAddClick}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Application
+            </Button>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -72,7 +78,12 @@ export function ApplicationsTable({ applications, onEdit, onDelete }: Applicatio
               <p className="text-lg font-medium mb-2">No applications yet</p>
               <p className="text-sm">Start tracking your job applications</p>
             </div>
-            <Button>Add Your First Application</Button>
+            {onAddClick && (
+              <Button onClick={onAddClick}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Your First Application
+              </Button>
+            )}
           </div>
         ) : (
           <div className="rounded-md border overflow-hidden">

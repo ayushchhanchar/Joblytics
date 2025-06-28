@@ -4,6 +4,7 @@ import { StatsCards } from '../components/dashboard/StatsCards';
 import { ApplicationsTable } from '../components/dashboard/ApplicationsTable';
 import { ResumeAnalyzer } from '../components/dashboard/ResumeAnalyzer';
 import { InsightsWidget } from '../components/dashboard/InsightsWidget';
+import { AddApplicationModal } from '../components/AddApplicationModal';
 import { Button } from '../components/ui/button';
 import { Plus } from 'lucide-react';
 import axios from 'axios';
@@ -11,6 +12,7 @@ import axios from 'axios';
 export default function Dashboard() {
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   // Mock user data - in real app, this would come from auth context
   const userName = "John";
@@ -47,6 +49,10 @@ export default function Dashboard() {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
 
+  const handleAddSuccess = () => {
+    fetchApplications();
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -68,7 +74,7 @@ export default function Dashboard() {
               Here's your job hunt overview
             </p>
           </div>
-          <Button className="sm:w-auto">
+          <Button onClick={() => setShowAddModal(true)} className="sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Add Application
           </Button>
@@ -88,6 +94,7 @@ export default function Dashboard() {
               applications={recentApplications}
               onEdit={(app) => console.log('Edit:', app)}
               onDelete={(id) => console.log('Delete:', id)}
+              onAddClick={() => setShowAddModal(true)}
             />
           </div>
 
@@ -97,6 +104,13 @@ export default function Dashboard() {
             <InsightsWidget />
           </div>
         </div>
+
+        {/* Add Application Modal */}
+        <AddApplicationModal
+          open={showAddModal}
+          onOpenChange={setShowAddModal}
+          onSuccess={handleAddSuccess}
+        />
       </div>
     </DashboardLayout>
   );
