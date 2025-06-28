@@ -1,0 +1,146 @@
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../ui/table';
+import { MoreHorizontal, Edit, Trash2, ExternalLink } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { ApplicationStatusLabels } from '../../constants/application-status';
+
+interface Application {
+  id: string;
+  company: string;
+  role: string;
+  location: string;
+  status: keyof typeof ApplicationStatusLabels;
+  appliedAt: string;
+  jobUrl?: string;
+}
+
+interface ApplicationsTableProps {
+  applications: Application[];
+  onEdit?: (application: Application) => void;
+  onDelete?: (id: string) => void;
+}
+
+export function ApplicationsTable({ applications, onEdit, onDelete }: ApplicationsTableProps) {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'APPLIED':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
+      case 'INTERVIEWING':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+      case 'OFFER':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+      case 'REJECTED':
+        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
+      case 'GHOSTED':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span>📂 Your Applications</span>
+          <Button size="sm">Add Application</Button>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {applications.length === 0 ? (
+          <div className="text-center py-8">
+            <div className="text-muted-foreground mb-4">
+              <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No applications yet</p>
+              <p className="text-sm">Start tracking your job applications</p>
+            </div>
+            <Button>Add Your First Application</Button>
+          </div>
+        ) : (
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Job Title</TableHead>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Applied Date</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {applications.map((application) => (
+                  <TableRow key={application.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center space-x-2">
+                        <span>{application.role}</span>
+                        {application.jobUrl && (
+                          <a
+                            href={application.jobUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-primary"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>{application.company}</TableCell>
+                    <TableCell>{application.location}</TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(application.status)}>
+                        {ApplicationStatusLabels[application.status]}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {new Date(application.appliedAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => onEdit?.(application)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => onDelete?.(application.id)}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

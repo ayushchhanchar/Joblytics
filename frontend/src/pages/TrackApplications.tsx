@@ -1,24 +1,43 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { DashboardLayout } from "../components/layout/DashboardLayout";
+import { ApplicationsTable } from "../components/dashboard/ApplicationsTable";
+import { StatsCards } from "../components/dashboard/StatsCards";
 import AddApplicationForm from "../components/AddApplicationForm";
-import ApplicationTable from "../components/ApplicationTable";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Plus, Filter, Search } from "lucide-react";
+import { Input } from "../components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
+import { ApplicationStatusLabels } from "../constants/application-status";
 
 export default function TrackApplications() {
   const [applications, setApplications] = useState<any[]>([]);
+  const [filteredApplications, setFilteredApplications] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const fetchApplications = async () => {
-    console.log("indside");
     try {
       const res = await axios.get("http://localhost:3000/api/get-applications", {
         headers: {
           Authorization: localStorage.getItem("token"),
         },
       });
-      console.log("-------------------",res.data);
       setApplications(res.data || []);
+      setFilteredApplications(res.data || []);
     } catch (err: any) {
       console.error("Error fetching applications:", err.response?.data || err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -26,36 +45,166 @@ export default function TrackApplications() {
     fetchApplications();
   }, []);
 
+  // Filter applications based on search and status
+  useEffect(() => {
+    let filtered = applications;
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(app =>
+        app.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.location.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by status
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(app => app.status === statusFilter);
+    }
+
+    setFilteredApplications(filtered);
+  }, [applications, searchTerm, statusFilter]);
+
+  // Calculate stats
+  const stats = {
+    totalApplications: applications.length,
+    interviews: applications.filter(app => app.status === 'INTERVIEWING').length,
+    offers: applications.filter(app => app.status === 'OFFER').length,
+    rejected: applications.filter(app => app.status === 'REJECTED' || app.status === 'GHOSTED').length,
+  };
+
+  const handleEdit = (application: any) => {
+    // TODO: Implement edit functionality
+    console.log('Edit application:', application);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to delete this application?')) {
+      try {
+        await axios.delete(`http://localhost:3000/api/applications/${id}`, {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        });
+        fetchApplications();
+      } catch (err: any) {
+        console.error("Error deleting application:", err.response?.data || err.message);
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-6 space-y-6">
-      <h2 className="text-3xl font-bold text-center mb-4">Your Job Applications</h2>
-
-      {applications.length === 0 ? (
-        <div className="text-center space-y-4">
-          <p className="text-gray-600">No applications yet.</p>
-          <button
-            onClick={() => setShowForm(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Add First Application
-          </button>
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Job Applications</h1>
+            <p className="text-muted-foreground mt-1">
+              Track and manage all your job applications
+            </p>
+          </div>
+          <Button onClick={() => setShowForm(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Application
+          </Button>
         </div>
-      ) : (
-        <div className="space-y-6">
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          >
-            {showForm ? "Close Form" : "Track New Application"}
-          </button>
 
-          <ApplicationTable applications={applications} refresh={fetchApplications} />
-        </div>
-      )}
+        {/* Stats Cards */}
+        <StatsCards stats={stats} />
 
-      {showForm && (
-        <AddApplicationForm onAdd={fetchApplications} onClose={() => setShowForm(false)} />
-      )}
-    </div>
+        {/* Filters and Search */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Applications</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by company, role, or location..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="min-w-[120px]">
+                    <Filter className="h-4 w-4 mr-2" />
+                    {statusFilter === "all" ? "All Status" : ApplicationStatusLabels[statusFilter as keyof typeof ApplicationStatusLabels]}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setStatusFilter("all")}>
+                    All Status
+                  </DropdownMenuItem>
+                  {Object.entries(ApplicationStatusLabels).map(([key, label]) => (
+                    <DropdownMenuItem key={key} onClick={() => setStatusFilter(key)}>
+                      {label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Status Filter Badges */}
+            {statusFilter !== "all" && (
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-sm text-muted-foreground">Filtered by:</span>
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  {ApplicationStatusLabels[statusFilter as keyof typeof ApplicationStatusLabels]}
+                  <button
+                    onClick={() => setStatusFilter("all")}
+                    className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5"
+                  >
+                    ×
+                  </button>
+                </Badge>
+              </div>
+            )}
+
+            <ApplicationsTable
+              applications={filteredApplications}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Add Application Form Modal */}
+        {showForm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <CardHeader>
+                <CardTitle>Add New Application</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <AddApplicationForm
+                  onAdd={() => {
+                    fetchApplications();
+                    setShowForm(false);
+                  }}
+                  onClose={() => setShowForm(false)}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+    </DashboardLayout>
   );
 }

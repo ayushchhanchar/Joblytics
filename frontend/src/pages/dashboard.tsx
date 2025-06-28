@@ -1,33 +1,103 @@
-import { useNavigate } from "react-router-dom"; // or 'next/router' for Next.js
+import React, { useState, useEffect } from 'react';
+import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { StatsCards } from '../components/dashboard/StatsCards';
+import { ApplicationsTable } from '../components/dashboard/ApplicationsTable';
+import { ResumeAnalyzer } from '../components/dashboard/ResumeAnalyzer';
+import { InsightsWidget } from '../components/dashboard/InsightsWidget';
+import { Button } from '../components/ui/button';
+import { Plus } from 'lucide-react';
+import axios from 'axios';
 
 export default function Dashboard() {
-  const navigate = useNavigate();
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Mock user data - in real app, this would come from auth context
+  const userName = "John";
+
+  const fetchApplications = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/api/get-applications", {
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        },
+      });
+      setApplications(res.data || []);
+    } catch (err: any) {
+      console.error("Error fetching applications:", err.response?.data || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchApplications();
+  }, []);
+
+  // Calculate stats from applications
+  const stats = {
+    totalApplications: applications.length,
+    interviews: applications.filter(app => app.status === 'INTERVIEWING').length,
+    offers: applications.filter(app => app.status === 'OFFER').length,
+    rejected: applications.filter(app => app.status === 'REJECTED' || app.status === 'GHOSTED').length,
+  };
+
+  // Get recent applications (last 5)
+  const recentApplications = applications
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
-    <div className="max-w-4xl mx-auto mt-20 px-6">
-      <h1 className="text-3xl font-bold text-center mb-10">Welcome to Joblytics Pro</h1>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div
-          className="cursor-pointer border p-6 rounded-xl shadow hover:shadow-lg transition"
-          onClick={() => navigate("/track")}
-        >
-          <h2 className="text-xl font-semibold mb-2">📊 Track Applications</h2>
-          <p className="text-gray-600">
-            View, update, and manage all your job applications in one place.
-          </p>
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Welcome back, {userName}! 👋</h1>
+            <p className="text-muted-foreground mt-1">
+              Here's your job hunt overview
+            </p>
+          </div>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Application
+          </Button>
         </div>
 
-        <div
-          className="cursor-pointer border p-6 rounded-xl shadow hover:shadow-lg transition"
-          onClick={() => navigate("/resume-ats")}
-        >
-          <h2 className="text-xl font-semibold mb-2">📄 Resume ATS Analyzer</h2>
-          <p className="text-gray-600">
-            Upload your resume to analyze it for ATS-friendliness and keyword matches.
-          </p>
+        {/* Quick Stats */}
+        <section>
+          <h2 className="text-xl font-semibold mb-4">📌 Quick Stats</h2>
+          <StatsCards stats={stats} />
+        </section>
+
+        {/* Main Content Grid */}
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Applications Table - Takes 2 columns */}
+          <div className="lg:col-span-2">
+            <ApplicationsTable 
+              applications={recentApplications}
+              onEdit={(app) => console.log('Edit:', app)}
+              onDelete={(id) => console.log('Delete:', id)}
+            />
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="space-y-6">
+            <ResumeAnalyzer />
+            <InsightsWidget />
+          </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
