@@ -18,28 +18,19 @@ id String @id @default(uuid())
 email String @unique
 password String
 name String
-
-// Profile fields
 bio String?
 location String?
 website String?
 linkedin String?
 github String?
 avatarUrl String?
-
-// Resume fields
-resumeUrl String? 
-resumeText String? 
-
-// Security fields
+resumeUrl String?
+resumeText String?
 passwordUpdatedAt DateTime?
-
 applications Application[]
-
 createdAt DateTime @default(now())
 updatedAt DateTime @updatedAt
 }
-
 model Application {
 id String @id @default(uuid())
 user User @relation(fields: [userId], references: [id], onDelete: Cascade)
