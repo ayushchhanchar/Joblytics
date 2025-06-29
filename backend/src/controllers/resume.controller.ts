@@ -25,7 +25,6 @@ interface ResumeAnalysis {
   readabilityScore: number;
 }
 
-// Common keywords for tech jobs (can be expanded or made dynamic)
 const COMMON_KEYWORDS = [
   'javascript', 'react', 'node.js', 'python', 'java', 'sql', 'aws', 'docker',
   'kubernetes', 'git', 'agile', 'scrum', 'api', 'rest', 'graphql', 'mongodb',
@@ -37,35 +36,51 @@ const COMMON_KEYWORDS = [
 
 const analyzeResumeText = (text: string): ResumeAnalysis => {
   const lowerText = text.toLowerCase();
-  const words = text.split(/\s+/).length;
-  
-  // Keyword analysis
-  const foundKeywords = COMMON_KEYWORDS.filter(keyword => 
-    lowerText.includes(keyword.toLowerCase())
-  );
-  const missingKeywords = COMMON_KEYWORDS.filter(keyword => 
-    !lowerText.includes(keyword.toLowerCase())
-  ).slice(0, 10); // Show top 10 missing
+  const wordCount = text.split(/\s+/).length;
 
-  // Section analysis
+  const foundKeywords = COMMON_KEYWORDS.filter(k => lowerText.includes(k));
+  const missingKeywords = COMMON_KEYWORDS.filter(k => !lowerText.includes(k)).slice(0, 15);
+
   const sections = {
     contact: analyzeContactSection(text),
     summary: analyzeSummarySection(text),
     experience: analyzeExperienceSection(text),
     skills: analyzeSkillsSection(text),
-    education: analyzeEducationSection(text)
+    education: analyzeEducationSection(text),
   };
 
-  // Calculate overall score
   const sectionScores = Object.values(sections).map(s => s.score);
   const avgSectionScore = sectionScores.reduce((a, b) => a + b, 0) / sectionScores.length;
-  const keywordScore = (foundKeywords.length / Math.min(COMMON_KEYWORDS.length, 20)) * 100;
-  const lengthScore = words >= 300 && words <= 800 ? 100 : words < 300 ? 60 : 80;
-  
-  const overallScore = Math.round((avgSectionScore * 0.6 + keywordScore * 0.3 + lengthScore * 0.1));
 
-  // Generate suggestions
-  const suggestions = generateSuggestions(sections, foundKeywords.length, words);
+  const keywordRatio = foundKeywords.length / COMMON_KEYWORDS.length;
+  const keywordScore = Math.min(keywordRatio * 100, 100);
+
+  let lengthScore = 0;
+  if (wordCount >= 400 && wordCount <= 750) {
+    lengthScore = 100;
+  } else if (wordCount >= 300 && wordCount <= 850) {
+    lengthScore = 70;
+  } else {
+    lengthScore = 40;
+  }
+
+  const formattingIssues = [];
+  if (!text.includes('•') && !text.includes('- ')) {
+    formattingIssues.push('No bullet points used');
+  }
+  if ((text.match(/[A-Z]{8,}/g) || []).length > 5) {
+    formattingIssues.push('Too many all-uppercase words');
+  }
+  const formattingScore = formattingIssues.length ? 60 : 100;
+
+  const overallScore = Math.round(
+    avgSectionScore * 0.4 +
+    keywordScore * 0.3 +
+    lengthScore * 0.2 +
+    formattingScore * 0.1
+  );
+
+  const suggestions = generateSuggestions(sections, foundKeywords.length, wordCount, formattingIssues);
 
   return {
     score: Math.min(overallScore, 100),
@@ -74,13 +89,13 @@ const analyzeResumeText = (text: string): ResumeAnalysis => {
       missing: missingKeywords.length,
       total: COMMON_KEYWORDS.length,
       foundKeywords,
-      missingKeywords
+      missingKeywords,
     },
     sections,
     suggestions,
-    compatibility: overallScore >= 80 ? 'high' : overallScore >= 60 ? 'medium' : 'low',
-    wordCount: words,
-    readabilityScore: calculateReadabilityScore(text)
+    compatibility: overallScore >= 85 ? 'high' : overallScore >= 65 ? 'medium' : 'low',
+    wordCount,
+    readabilityScore: calculateReadabilityScore(text),
   };
 };
 
@@ -151,7 +166,6 @@ const analyzeExperienceSection = (text: string) => {
     score -= 50;
   }
 
-  // Check for quantifiable achievements
   const numberRegex = /\d+%|\d+\+|\$\d+|\d+k|\d+ years?|\d+ months?/gi;
   const quantifiableAchievements = text.match(numberRegex);
   
@@ -160,7 +174,6 @@ const analyzeExperienceSection = (text: string) => {
     score -= 30;
   }
 
-  // Check for action verbs
   const actionVerbs = ['led', 'managed', 'developed', 'created', 'implemented', 'improved', 'increased', 'reduced'];
   const hasActionVerbs = actionVerbs.some(verb => lowerText.includes(verb));
   
@@ -225,35 +238,27 @@ const analyzeEducationSection = (text: string) => {
   };
 };
 
-const generateSuggestions = (sections: any, keywordCount: number, wordCount: number): string[] => {
+const generateSuggestions = (
+  sections: any,
+  keywordCount: number,
+  wordCount: number,
+  formattingIssues: string[] = []
+): string[] => {
   const suggestions: string[] = [];
 
-  if (sections.contact.score < 80) {
-    suggestions.push("Complete your contact information with email, phone, and LinkedIn");
-  }
-  
-  if (sections.experience.score < 80) {
-    suggestions.push("Add quantifiable achievements with specific numbers and metrics");
-  }
-  
-  if (keywordCount < 10) {
-    suggestions.push("Include more relevant technical keywords from job descriptions");
-  }
-  
-  if (wordCount < 300) {
-    suggestions.push("Expand your resume content - aim for 300-800 words");
-  } else if (wordCount > 800) {
-    suggestions.push("Consider condensing your resume - keep it concise and relevant");
-  }
-  
-  if (sections.skills.score < 80) {
-    suggestions.push("Create a dedicated skills section with relevant technologies");
-  }
+  if (sections.contact.score < 80)
+    suggestions.push("Add valid contact info including email, phone, and LinkedIn");
+  if (sections.skills.score < 80)
+    suggestions.push("Add a dedicated skills section with tools/technologies");
+  if (keywordCount < 12)
+    suggestions.push("Incorporate more job-specific keywords to match ATS parsing");
+  if (wordCount < 400)
+    suggestions.push("Resume is too short – add more experience or detail");
+  if (wordCount > 850)
+    suggestions.push("Resume is too long – try to condense to 1–2 pages");
 
-  suggestions.push("Use consistent formatting and standard section headers");
-  suggestions.push("Tailor your resume keywords to match specific job descriptions");
-
-  return suggestions.slice(0, 6); // Limit to 6 suggestions
+  suggestions.push(...formattingIssues);
+  return suggestions.slice(0, 6);
 };
 
 const calculateReadabilityScore = (text: string): number => {
@@ -274,7 +279,6 @@ export const analyzeResume = async (req: Request & { user?: any }, res: Response
       return res.status(400).json({ error: "No resume file uploaded" });
     }
 
-    // Parse PDF
     const buffer = fs.readFileSync(req.file.path);
     const parsedPdf = await pdfParse(buffer);
     const resumeText = parsedPdf.text;
@@ -283,7 +287,6 @@ export const analyzeResume = async (req: Request & { user?: any }, res: Response
       return res.status(400).json({ error: "Could not extract text from resume or content too short" });
     }
 
-    // Analyze the resume
     const analysis = analyzeResumeText(resumeText);
 
     // Save analysis to database (optional)
@@ -297,10 +300,8 @@ export const analyzeResume = async (req: Request & { user?: any }, res: Response
       });
     } catch (dbError) {
       console.error("Database update error:", dbError);
-      // Continue with response even if DB update fails
     }
 
-    // Clean up uploaded file
     fs.unlinkSync(req.file.path);
 
     res.json({
@@ -312,7 +313,7 @@ export const analyzeResume = async (req: Request & { user?: any }, res: Response
   } catch (error) {
     console.error("Resume analysis error:", error);
     
-    // Clean up file if it exists
+
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }

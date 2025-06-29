@@ -2,6 +2,7 @@ import express from "express";
 import authRoutes from "./routes/auth.routes";
 import applicationRoutes from "./routes/application.routes";
 import resumeRoutes from "./routes/resume.routes";
+import userRoutes from "./routes/user.routes";
 import cors from "cors";
 require ("dotenv").config();
 
@@ -13,6 +14,8 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api", authRoutes);
 app.use("/api", applicationRoutes);
 app.use("/api/resume", resumeRoutes);
+app.use("/api",userRoutes);
+
 
 app.listen(3000, () => {
     console.log("Server is running on port 3000");

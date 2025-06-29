@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import {
@@ -12,6 +12,7 @@ import {
 import { ModeToggle } from '../ui/mode-toggle';
 import { Menu, User, Settings, LogOut, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 interface TopNavbarProps {
   onMenuClick: () => void;
@@ -20,15 +21,36 @@ interface TopNavbarProps {
 export function TopNavbar({ onMenuClick }: TopNavbarProps) {
   const navigate = useNavigate();
 
+  const[user,setUser]=useState<any>("");
+
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
   };
-
-  // Get user info from localStorage or API
-  const userName = "John Doe"; // This would come from your auth context
-  const userEmail = "john@example.com";
-
+const getInitials = (name: string | undefined | null) => {
+  if (!name) return '';
+  return name
+    .trim()
+    .split(/\s+/)
+    .map(word => word[0]?.toUpperCase())
+    .join('');
+};
+useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/userdetails', {
+          headers: {
+            Authorization: localStorage.getItem('token'),
+          },
+        });
+        setUser(response.data.user); response.data.user;
+      } catch (err: any) {
+        console.error('Error fetching user details:', err.response?.data || err.message);
+      }
+    };
+    fetchUserDetails();
+  })
   return (
     <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
@@ -62,9 +84,9 @@ export function TopNavbar({ onMenuClick }: TopNavbarProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src="/avatars/01.png" alt={userName} />
+                  <AvatarImage src="/avatars/01.png" alt={user.name} />
                   <AvatarFallback className="text-sm">
-                    {userName.split(' ').map(n => n[0]).join('')}
+               {getInitials(user?.name)}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -72,9 +94,9 @@ export function TopNavbar({ onMenuClick }: TopNavbarProps) {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{userName}</p>
+                  <p className="text-sm font-medium leading-none">{user.name}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {userEmail}
+                    {user.email}
                   </p>
                 </div>
               </DropdownMenuLabel>
