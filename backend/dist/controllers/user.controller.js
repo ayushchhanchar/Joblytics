@@ -32,7 +32,14 @@ const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 // Configure multer for avatar uploads
 const avatarStorage = multer_1.default.diskStorage({
-    destination: "./uploads/avatars/",
+    destination: (req, file, cb) => {
+        const uploadDir = "./uploads/avatars/";
+        // Create directory if it doesn't exist
+        if (!fs_1.default.existsSync(uploadDir)) {
+            fs_1.default.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, 'avatar-' + uniqueSuffix + path_1.default.extname(file.originalname));
