@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -14,17 +14,80 @@ import {
   TrendingUp,
   Download,
   Eye,
-  Zap
+  Zap,
+  RefreshCw
 } from 'lucide-react';
+import axios from 'axios';
+
+interface ResumeAnalysis {
+  score: number;
+  keywords: {
+    found: number;
+    missing: number;
+    total: number;
+    foundKeywords: string[];
+    missingKeywords: string[];
+  };
+  sections: {
+    [key: string]: {
+      score: number;
+      status: string;
+      issues: string[];
+    };
+  };
+  suggestions: string[];
+  compatibility: string;
+  wordCount: number;
+  readabilityScore: number;
+}
 
 export default function ResumeATS() {
   const [file, setFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [results, setResults] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<ResumeAnalysis | null>(null);
+  const [error, setError] = useState<string>('');
+
+  useEffect(() => {
+    loadExistingAnalysis();
+  }, []);
+
+  const loadExistingAnalysis = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('http://localhost:3000/api/resume/analysis', {
+        headers: {
+          Authorization: localStorage.getItem('token'),
+        },
+      });
+      
+      if (response.data.success) {
+        setResults(response.data.analysis);
+      }
+    } catch (err: any) {
+      console.log('No existing resume analysis found');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      
+      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (!allowedTypes.includes(selectedFile.type)) {
+        setError('Please upload a PDF, DOC, or DOCX file');
+        return;
+      }
+      
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        setError('File size must be less than 5MB');
+        return;
+      }
+      
+      setFile(selectedFile);
+      setError('');
     }
   };
 
@@ -32,39 +95,45 @@ export default function ResumeATS() {
     if (!file) return;
     
     setAnalyzing(true);
-    // Simulate analysis
-    setTimeout(() => {
-      setResults({
-        score: 85,
-        keywords: {
-          found: 12,
-          missing: 5,
-          total: 17
+    setError('');
+    
+    const formData = new FormData();
+    formData.append('resume', file);
+    
+    try {
+      const response = await axios.post('http://localhost:3000/api/resume/analyze', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: localStorage.getItem('token'),
         },
-        sections: {
-          contact: { score: 100, status: 'excellent' },
-          summary: { score: 80, status: 'good' },
-          experience: { score: 90, status: 'excellent' },
-          skills: { score: 70, status: 'needs_improvement' },
-          education: { score: 85, status: 'good' }
-        },
-        suggestions: [
-          'Add more technical skills relevant to the job',
-          'Include quantifiable achievements in your experience',
-          'Optimize formatting for better ATS scanning',
-          'Add missing keywords: "React", "Node.js", "AWS"',
-          'Consider adding a professional summary section'
-        ],
-        compatibility: 'high'
       });
+      
+      if (response.data.success) {
+        setResults(response.data.analysis);
+        setFile(null);
+        const fileInput = document.getElementById('resume') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to analyze resume. Please try again.');
+    } finally {
       setAnalyzing(false);
-    }, 3000);
+    }
   };
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
     if (score >= 60) return 'text-yellow-600';
     return 'text-red-600';
+  };
+
+  const getCompatibilityColor = (compatibility: string) => {
+    switch (compatibility) {
+      case 'high': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+      case 'low': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+    }
   };
 
   const getStatusIcon = (status: string) => {
@@ -80,15 +149,37 @@ export default function ResumeATS() {
     }
   };
 
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Resume ATS Analyzer</h1>
-          <p className="text-muted-foreground mt-1">
-            Upload your resume to analyze ATS compatibility and get optimization suggestions
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold">Resume ATS Analyzer</h1>
+            <p className="text-muted-foreground mt-1">
+              Upload your resume to analyze ATS compatibility and get optimization suggestions
+            </p>
+          </div>
+          {results && (
+            <Button
+              variant="outline"
+              onClick={loadExistingAnalysis}
+              className="flex items-center space-x-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              <span>Refresh</span>
+            </Button>
+          )}
         </div>
 
         {/* Upload Section */}
@@ -128,6 +219,9 @@ export default function ResumeATS() {
                   )}
                 </Button>
               </div>
+              {error && (
+                <p className="text-sm text-red-600">{error}</p>
+              )}
               <p className="text-xs text-muted-foreground">
                 Supported formats: PDF, DOC, DOCX (Max 5MB)
               </p>
@@ -172,11 +266,8 @@ export default function ResumeATS() {
                   <div className={`text-4xl md:text-6xl font-bold ${getScoreColor(results.score)} mb-2`}>
                     {results.score}%
                   </div>
-                  <Badge 
-                    variant={results.compatibility === 'high' ? 'default' : 'secondary'}
-                    className="mb-4"
-                  >
-                    {results.compatibility === 'high' ? 'High Compatibility' : 'Needs Improvement'}
+                  <Badge className={getCompatibilityColor(results.compatibility)}>
+                    {results.compatibility.charAt(0).toUpperCase() + results.compatibility.slice(1)} Compatibility
                   </Badge>
                 </div>
                 
@@ -184,22 +275,34 @@ export default function ResumeATS() {
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span>Keywords Found</span>
-                      <span>{results.keywords.found}/{results.keywords.total}</span>
+                      <span>{results.keywords.found}/{Math.min(results.keywords.total, 20)}</span>
                     </div>
-                    <Progress value={(results.keywords.found / results.keywords.total) * 100} />
+                    <Progress value={(results.keywords.found / Math.min(results.keywords.total, 20)) * 100} />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 text-center text-sm">
+                    <div>
+                      <div className="font-medium text-lg">{results.wordCount}</div>
+                      <div className="text-muted-foreground">Words</div>
+                    </div>
+                    <div>
+                      <div className="font-medium text-lg">{results.readabilityScore}%</div>
+                      <div className="text-muted-foreground">Readability</div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="pt-4 space-y-2">
-                  <Button className="w-full" variant="outline">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Report
-                  </Button>
-                  <Button className="w-full" variant="outline">
-                    <Eye className="h-4 w-4 mr-2" />
-                    View Detailed Analysis
-                  </Button>
-                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setResults(null);
+                    setFile(null);
+                  }}
+                  className="w-full"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Analyze New Resume
+                </Button>
               </CardContent>
             </Card>
 
@@ -210,24 +313,68 @@ export default function ResumeATS() {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {Object.entries(results.sections).map(([section, data]: [string, any]) => (
-                    <div key={section} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        {getStatusIcon(data.status)}
-                        <div>
-                          <div className="font-medium capitalize">
+                  {Object.entries(results.sections).map(([section, data]) => (
+                    <div key={section} className="space-y-2 p-4 border rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          {getStatusIcon(data.status)}
+                          <span className="font-medium capitalize">
                             {section.replace('_', ' ')}
-                          </div>
-                          <div className="text-sm text-muted-foreground capitalize">
-                            {data.status.replace('_', ' ')}
-                          </div>
+                          </span>
                         </div>
+                        <span className={`text-lg font-semibold ${getScoreColor(data.score)}`}>
+                          {data.score}%
+                        </span>
                       </div>
-                      <div className={`text-lg font-semibold ${getScoreColor(data.score)}`}>
-                        {data.score}%
-                      </div>
+                      {data.issues.length > 0 && (
+                        <div className="space-y-1">
+                          {data.issues.slice(0, 2).map((issue, index) => (
+                            <p key={index} className="text-xs text-muted-foreground">
+                              • {issue}
+                            </p>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Keywords Found/Missing */}
+            <Card className="xl:col-span-3">
+              <CardHeader>
+                <CardTitle>Keyword Analysis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <h4 className="font-medium text-green-600 mb-3 flex items-center">
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Found Keywords ({results.keywords.found})
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {results.keywords.foundKeywords.slice(0, 15).map((keyword, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {keyword}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium text-yellow-600 mb-3 flex items-center">
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      Suggested Keywords ({results.keywords.missingKeywords.length})
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {results.keywords.missingKeywords.slice(0, 15).map((keyword, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {keyword}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -242,7 +389,7 @@ export default function ResumeATS() {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {results.suggestions.map((suggestion: string, index: number) => (
+                  {results.suggestions.map((suggestion, index) => (
                     <div key={index} className="flex items-start space-x-3 p-3 border rounded-lg">
                       <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
                       <div>
