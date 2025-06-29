@@ -7,6 +7,7 @@ import LandingPage from './pages/LandingPage'
 import TrackApplications from './pages/TrackApplications'
 import ResumeATS from './pages/ResumeATS'
 import Settings from './pages/Settings'
+import Profile from './pages/Profile'
 import { ThemeProvider } from './components/theme-provider'
 
 const App = () => {
@@ -21,6 +22,7 @@ const App = () => {
           <Route path="/track" element={<TrackApplications />} />
           <Route path="/resume-ats" element={<ResumeATS />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
