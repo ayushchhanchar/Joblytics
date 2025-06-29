@@ -104,13 +104,8 @@ Licensed under the MIT License.
 
 Contact
 
-Made with ❤️ by [Your Name]
-Feel free to reach out on LinkedIn or email: your.email@example.com
+Made with ❤️ by Ayush Chhanchar
+Feel free to reach out on LinkedIn or email: chhancharayush007@gmail.com
 """
 
-# Save it as a .txt file
-readme_path = "/mnt/data/JoblyticsPro_README.txt"
-with open(readme_path, "w", encoding="utf-8") as f:
-    f.write(readme_content)
 
-readme_path
