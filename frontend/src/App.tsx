@@ -6,23 +6,24 @@ import Dashboard from './pages/dashboard'
 import LandingPage from './pages/LandingPage'
 import TrackApplications from './pages/TrackApplications'
 import ResumeATS from './pages/ResumeATS'
-
-
+import Settings from './pages/Settings'
+import { ThemeProvider } from './components/theme-provider'
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/track" element={<TrackApplications />} />
-        <Route path="/resume-ats" element={<ResumeATS />} />
-
-      </Routes>
-    </BrowserRouter>
-   
+    <ThemeProvider defaultTheme="system" storageKey="joblytics-theme">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/track" element={<TrackApplications />} />
+          <Route path="/resume-ats" element={<ResumeATS />} />
+          <Route path="/settings" element={<Settings />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }
 
