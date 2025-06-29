@@ -1,6 +1,5 @@
-# Let's create a .txt version of the README.md content
-readme_content = """
-Joblytics Pro
+# Joblytics Pro
+
 
 Joblytics Pro is a full-stack, AI-augmented job application management platform that allows users to track job applications and analyze their resumes for ATS (Applicant Tracking System) compatibility.
 
