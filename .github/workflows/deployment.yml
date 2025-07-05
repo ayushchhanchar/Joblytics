@@ -23,7 +23,7 @@ jobs:
       - name: Deploy to DigitalOcean via SSH
         run: |-
           ssh root@${{ secrets.JOBLYTICS_HOST}} << 'EOF'
-          cd /root/AI-Chef
+          cd /root/joblytics
           git pull origin main
           docker-compose down
           docker-compose up --build -d
