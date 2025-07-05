@@ -36,7 +36,7 @@ export default function Login() {
     setError("");
     
     try {
-      const res = await axios.post("http://joblytics.notdeveloper.in/api/signin", data);
+      const res = await axios.post("https://joblytics.notdeveloper.in/signin", data);
       localStorage.setItem("token", res.data.token);
       navigate("/dashboard");
     } catch (err: any) {

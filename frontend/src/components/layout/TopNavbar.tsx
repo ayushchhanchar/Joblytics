@@ -41,7 +41,7 @@ export function TopNavbar({ onMenuClick }: TopNavbarProps) {
     const fetchUserDetails = async () => {
       try {
         const response = await axios.get(
-          "http://joblytics.notdeveloper.in/api/userdetails",
+          "https://joblytics.notdeveloper.in/userdetails",
           {
             headers: {
               Authorization: localStorage.getItem("token"),
