@@ -24,7 +24,7 @@ export default function ApplicationTable({
   const handleStatusChange = async (id: string, newStatus: Application["status"]) => {
     try {
       setUpdatingId(id);
-      await axios.patch(`http://localhost:3000/api/applications/${id}`, { status: newStatus }, {
+      await axios.patch(`http://joblytics.notdeveloper.in/api/applications/${id}`, { status: newStatus }, {
         headers: {
           Authorization: localStorage.getItem("token"),
         },

@@ -33,7 +33,7 @@ export default function Profile() {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/userdetails', {
+      const response = await axios.get('http://joblytics.notdeveloper.in/api/userdetails', {
         headers: {
           Authorization: localStorage.getItem('token'),
         },
@@ -46,7 +46,7 @@ export default function Profile() {
 
   const fetchApplications = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/get-applications', {
+      const response = await axios.get('http://joblytics.notdeveloper.in/api/get-applications', {
         headers: {
           Authorization: localStorage.getItem('token'),
         },

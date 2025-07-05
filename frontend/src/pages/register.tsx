@@ -66,7 +66,7 @@ export default function Register() {
     }
 
     try {
-    await axios.post("http://localhost:3000/api/register", formData, {
+    await axios.post("http://joblytics.notdeveloper.in/api/register", formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

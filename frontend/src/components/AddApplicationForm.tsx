@@ -42,7 +42,7 @@ export default function AddApplicationForm({
         ...data,
         appliedAt: data.appliedAt ? new Date(data.appliedAt) : undefined,
       };
-      await axios.post("http://localhost:3000/api/add-applications", finalData, {
+      await axios.post("http://joblytics.notdeveloper.in/api/add-applications", finalData, {
         headers: {
           Authorization: localStorage.getItem("token"),
         },

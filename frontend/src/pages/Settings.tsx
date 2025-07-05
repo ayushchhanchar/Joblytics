@@ -123,7 +123,7 @@ export default function Settings() {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/userdetails', {
+      const response = await axios.get('http://joblytics.notdeveloper.in/api/userdetails', {
         headers: {
           Authorization: localStorage.getItem('token'),
         },
@@ -164,7 +164,7 @@ export default function Settings() {
         formData.append('avatar', avatarFile);
       }
 
-      await axios.patch('http://localhost:3000/api/profile', formData, {
+      await axios.patch('http://joblytics.notdeveloper.in/api/profile', formData, {
         headers: {
           Authorization: localStorage.getItem('token'),
           'Content-Type': 'multipart/form-data',
@@ -188,7 +188,7 @@ export default function Settings() {
     setMessage(null);
     
     try {
-      await axios.patch('http://localhost:3000/api/change-password', {
+      await axios.patch('http://joblytics.notdeveloper.in/api/change-password', {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
       }, {
@@ -229,7 +229,7 @@ export default function Settings() {
 
   const handleNotificationUpdate = async (key: string, value: boolean) => {
     try {
-      await axios.patch('http://localhost:3000/api/notifications', {
+      await axios.patch('http://joblytics.notdeveloper.in/api/notifications', {
         [key]: value,
       }, {
         headers: {
@@ -245,7 +245,7 @@ export default function Settings() {
 
   const handlePrivacyUpdate = async (key: string, value: any) => {
     try {
-      await axios.patch('http://localhost:3000/api/privacy', {
+      await axios.patch('http://joblytics.notdeveloper.in/api/privacy', {
         [key]: value,
       }, {
         headers: {
@@ -261,7 +261,7 @@ export default function Settings() {
 
   const handleDataExport = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/export-data', {
+      const response = await axios.get('http://joblytics.notdeveloper.in/api/export-data', {
         headers: {
           Authorization: localStorage.getItem('token'),
         },
@@ -284,7 +284,7 @@ export default function Settings() {
 
   const handleAccountDelete = async () => {
     try {
-      await axios.delete('http://localhost:3000/api/account', {
+      await axios.delete('http://joblytics.notdeveloper.in/api/account', {
         headers: {
           Authorization: localStorage.getItem('token'),
         },

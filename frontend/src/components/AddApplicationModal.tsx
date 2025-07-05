@@ -84,7 +84,7 @@ export function AddApplicationModal({
         appliedAt: data.appliedAt || new Date(),
       };
 
-      await axios.post('http://localhost:3000/api/add-applications', payload, {
+      await axios.post('hhttp://joblytics.notdeveloper.in/api/add-applications', payload, {
         headers: {
           Authorization: localStorage.getItem('token'),
         },
