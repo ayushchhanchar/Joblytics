@@ -12,8 +12,6 @@ import {
   CheckCircle, 
   AlertCircle, 
   TrendingUp,
-  Download,
-  Eye,
   Zap,
   RefreshCw
 } from 'lucide-react';

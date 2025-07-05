@@ -28,13 +28,11 @@ import {
 } from '../components/ui/select';
 import {
   User,
-  Mail,
   Lock,
   Bell,
   Shield,
   Download,
   Trash2,
-  Upload,
   Save,
   Eye,
   EyeOff,

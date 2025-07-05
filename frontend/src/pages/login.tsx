@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { InputField } from "../components/InputField";
-import { BarChart3, Mail, Lock, Loader2 } from "lucide-react";
+import { BarChart3, Lock, Loader2 } from "lucide-react";
 import { ModeToggle } from "../components/ui/mode-toggle";
 
 const schema = z.object({

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -10,12 +10,10 @@ import {
 } from '../ui/popover';
 import {
   Bell,
-  Check,
   CheckCheck,
   Trash2,
   Calendar,
   Briefcase,
-  FileText,
   TrendingUp,
   AlertCircle,
   X,

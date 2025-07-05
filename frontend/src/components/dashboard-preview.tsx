@@ -2,7 +2,25 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Building2, Calendar, MapPin, ExternalLink } from 'lucide-react';
 
-const jobApplications = [
+const statusConfig = {
+  applied: { label: 'Applied', variant: 'secondary' as const, color: 'bg-blue-100 text-blue-800' },
+  interviewing: { label: 'Interviewing', variant: 'default' as const, color: 'bg-yellow-100 text-yellow-800' },
+  offer: { label: 'Offer', variant: 'default' as const, color: 'bg-green-100 text-green-800' },
+  rejected: { label: 'Rejected', variant: 'destructive' as const, color: 'bg-red-100 text-red-800' },
+};
+
+type ApplicationStatus = keyof typeof statusConfig;
+
+type JobApplication = {
+  company: string;
+  position: string;
+  location: string;
+  appliedDate: string;
+  status: ApplicationStatus;
+  logo: string;
+};
+
+const jobApplications: JobApplication[] = [
   {
     company: 'TechCorp',
     position: 'Senior Frontend Developer',
@@ -53,13 +71,6 @@ const jobApplications = [
   },
 ];
 
-const statusConfig = {
-  applied: { label: 'Applied', variant: 'secondary' as const, color: 'bg-blue-100 text-blue-800' },
-  interviewing: { label: 'Interviewing', variant: 'default' as const, color: 'bg-yellow-100 text-yellow-800' },
-  offer: { label: 'Offer', variant: 'default' as const, color: 'bg-green-100 text-green-800' },
-  rejected: { label: 'Rejected', variant: 'destructive' as const, color: 'bg-red-100 text-red-800' },
-};
-
 export function DashboardPreview() {
   return (
     <section className="py-20 md:py-32 bg-muted/20">
@@ -99,47 +110,54 @@ export function DashboardPreview() {
             {/* Applications Grid */}
             <div className="p-6">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {jobApplications.map((application, index) => (
-                  <Card key={index} className="group hover:shadow-md transition-all duration-200 cursor-pointer border border-border/50">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="text-2xl">{application.logo}</div>
-                          <div className="min-w-0 flex-1">
-                            <CardTitle className="text-base truncate">
-                              {application.position}
-                            </CardTitle>
-                            <div className="flex items-center text-sm text-muted-foreground mt-1">
-                              <Building2 className="h-3 w-3 mr-1" />
-                              <span className="truncate">{application.company}</span>
+                {jobApplications.map((application, index) => {
+                  const status = statusConfig[application.status];
+
+                  return (
+                    <Card
+                      key={index}
+                      className="group hover:shadow-md transition-all duration-200 cursor-pointer border border-border/50"
+                    >
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="text-2xl">{application.logo}</div>
+                            <div className="min-w-0 flex-1">
+                              <CardTitle className="text-base truncate">
+                                {application.position}
+                              </CardTitle>
+                              <div className="flex items-center text-sm text-muted-foreground mt-1">
+                                <Building2 className="h-3 w-3 mr-1" />
+                                <span className="truncate">{application.company}</span>
+                              </div>
                             </div>
                           </div>
+                          <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
-                        <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="space-y-2">
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <MapPin className="h-3 w-3 mr-2" />
-                          <span>{application.location}</span>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="space-y-2">
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <MapPin className="h-3 w-3 mr-2" />
+                            <span>{application.location}</span>
+                          </div>
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <Calendar className="h-3 w-3 mr-2" />
+                            <span>Applied {new Date(application.appliedDate).toLocaleDateString()}</span>
+                          </div>
+                          <div className="pt-2">
+                            <Badge
+                              variant={status.variant}
+                              className={`text-xs ${status.color}`}
+                            >
+                              {status.label}
+                            </Badge>
+                          </div>
                         </div>
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Calendar className="h-3 w-3 mr-2" />
-                          <span>Applied {new Date(application.appliedDate).toLocaleDateString()}</span>
-                        </div>
-                        <div className="pt-2">
-                          <Badge 
-                            variant={statusConfig[application.status].variant}
-                            className={`text-xs ${statusConfig[application.status].color}`}
-                          >
-                            {statusConfig[application.status].label}
-                          </Badge>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </div>
           </div>

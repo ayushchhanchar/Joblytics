@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,7 +9,7 @@ import { Button } from "../components/ui/button";
 import { InputField } from "../components/InputField";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { BarChart3, User, Mail, Lock, Upload, Loader2, CheckCircle } from "lucide-react";
+import { BarChart3, User,  Loader2, CheckCircle } from "lucide-react";
 import { ModeToggle } from "../components/ui/mode-toggle";
 
 const schema = z.object({
@@ -66,7 +66,7 @@ export default function Register() {
     }
 
     try {
-      const res = await axios.post("http://localhost:3000/api/register", formData, {
+    await axios.post("http://localhost:3000/api/register", formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

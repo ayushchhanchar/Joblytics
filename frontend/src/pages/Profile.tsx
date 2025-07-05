@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -6,7 +6,6 @@ import { Badge } from '../components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { Separator } from '../components/ui/separator';
 import {
-  User,
   Mail,
   MapPin,
   Globe,
@@ -16,7 +15,6 @@ import {
   Briefcase,
   FileText,
   Settings,
-  Edit,
   ExternalLink,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
