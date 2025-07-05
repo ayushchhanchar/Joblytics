@@ -25,6 +25,6 @@ jobs:
           ssh root@${{ secrets.JOBLYTICS_HOST}} << 'EOF'
           cd /root/Joblytics
           git pull origin main
-          docker-compose down
-          docker-compose up --build -d
+          docker compose down
+          docker compose up --build -d
           EOF
