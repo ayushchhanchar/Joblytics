@@ -24,7 +24,7 @@ useEffect(() => {
   const fetchUserDetails = async () => {
     try {
       const response = await axios.get(
-        "https://joblytics.notdeveloper.in/userdetails",
+        "https://joblytics.notdeveloper.in/api/userdetails",
         {
           headers: {
             Authorization: localStorage.getItem("token"),
@@ -45,7 +45,7 @@ useEffect(() => {
   const fetchApplications = async () => {
     try {
       const res = await axios.get(
-        "https://joblytics.notdeveloper.in/get-applications",
+        "https://joblytics.notdeveloper.in/api/get-applications",
         {
           headers: {
             Authorization: localStorage.getItem("token"),
@@ -102,7 +102,7 @@ useEffect(() => {
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this application?")) {
       try {
-        await axios.delete(`https://joblytics.notdeveloper.in/applications/${id}`, {
+        await axios.delete(`https://joblytics.notdeveloper.in/api/applications/${id}`, {
           headers: {
             Authorization: localStorage.getItem("token"),
           },

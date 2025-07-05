@@ -30,7 +30,7 @@ export default function TrackApplications() {
 
   const fetchApplications = async () => {
     try {
-      const res = await axios.get("https://joblytics.notdeveloper.in/get-applications", {
+      const res = await axios.get("https://joblytics.notdeveloper.in/api/get-applications", {
         headers: {
           Authorization: localStorage.getItem("token"),
         },
@@ -85,7 +85,7 @@ export default function TrackApplications() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this application?')) {
       try {
-        await axios.delete(`https://joblytics.notdeveloper.in/applications/${id}`, {
+        await axios.delete(`https://joblytics.notdeveloper.in/api/applications/${id}`, {
           headers: {
             Authorization: localStorage.getItem("token"),
           },

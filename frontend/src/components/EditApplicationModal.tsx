@@ -112,7 +112,7 @@ export function EditApplicationModal({
       console.log("payload-----",payload);
 
       await axios.patch(
-        `https://joblytics.notdeveloper.in/applications/${application.id}`,
+        `https://joblytics.notdeveloper.in/api/applications/${application.id}`,
         payload,
         {
           headers: {

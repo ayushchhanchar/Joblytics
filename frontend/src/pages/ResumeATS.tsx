@@ -53,7 +53,7 @@ export default function ResumeATS() {
   const loadExistingAnalysis = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('https://joblytics.notdeveloper.in/resume/analysis', {
+      const response = await axios.get('https://joblytics.notdeveloper.in/api/resume/analysis', {
         headers: {
           Authorization: localStorage.getItem('token'),
         },
@@ -99,7 +99,7 @@ export default function ResumeATS() {
     formData.append('resume', file);
     
     try {
-      const response = await axios.post('https://joblytics.notdeveloper.in/resume/analyze', formData, {
+      const response = await axios.post('https://joblytics.notdeveloper.in/api/resume/analyze', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: localStorage.getItem('token'),
