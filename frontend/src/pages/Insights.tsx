@@ -30,132 +30,114 @@ import {
   XCircle,
   AlertCircle,
   RefreshCw,
+  Download,
 } from 'lucide-react';
 import axios from 'axios';
 import { ApplicationStatusLabels } from '../constants/application-status';
 
 interface InsightData {
-  applications: any[];
   timeRange: string;
+  metrics: {
+    totalApplications: number;
+    responseRate: number;
+    interviewRate: number;
+    offerRate: number;
+    trends: {
+      applications: number;
+      responseRate: number;
+      interviewRate: number;
+      offerRate: number;
+    };
+  };
+  statusDistribution: Array<{
+    status: string;
+    count: number;
+    percentage: number;
+  }>;
+  weeklyTrend: Array<{
+    week: string;
+    weekStart: string;
+    applications: number;
+    interviews: number;
+    offers: number;
+  }>;
+  topCompanies: Array<{
+    company: string;
+    count: number;
+  }>;
+  topLocations: Array<{
+    location: string;
+    count: number;
+  }>;
+  performanceInsights: Array<{
+    type: string;
+    title: string;
+    description: string;
+    icon: string;
+  }>;
+  goalProgress: {
+    monthlyGoal: number;
+    currentProgress: number;
+    remainingDays: number;
+    dailyTarget: number;
+    progressPercentage: number;
+    isGoalAchieved: boolean;
+  };
 }
 
 export default function Insights() {
-  const [applications, setApplications] = useState<any[]>([]);
+  const [insightData, setInsightData] = useState<InsightData | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('30'); // days
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    fetchApplications();
-  }, []);
+    fetchInsights();
+  }, [timeRange]);
 
-  const fetchApplications = async () => {
+  const fetchInsights = async () => {
     setRefreshing(true);
+    setError('');
     try {
-      const response = await axios.get('https://joblytics.notdeveloper.in/api/get-applications', {
+      const response = await axios.get(`https://joblytics.notdeveloper.in/api/insights?timeRange=${timeRange}`, {
         headers: {
           Authorization: localStorage.getItem('token'),
         },
       });
-      setApplications(response.data || []);
-    } catch (error) {
-      console.error('Error fetching applications:', error);
+      
+      if (response.data.success) {
+        setInsightData(response.data.data);
+      }
+    } catch (error: any) {
+      console.error('Error fetching insights:', error);
+      setError('Failed to load insights data');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  // Filter applications by time range
-  const filteredApplications = applications.filter(app => {
-    const appDate = new Date(app.appliedAt);
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - parseInt(timeRange));
-    return appDate >= cutoffDate;
-  });
-
-  // Calculate metrics
-  const metrics = {
-    totalApplications: filteredApplications.length,
-    responseRate: filteredApplications.length > 0 
-      ? Math.round((filteredApplications.filter(app => 
-          ['INTERVIEWING', 'OFFER'].includes(app.status)).length / filteredApplications.length) * 100)
-      : 0,
-    interviewRate: filteredApplications.length > 0
-      ? Math.round((filteredApplications.filter(app => app.status === 'INTERVIEWING').length / filteredApplications.length) * 100)
-      : 0,
-    offerRate: filteredApplications.length > 0
-      ? Math.round((filteredApplications.filter(app => app.status === 'OFFER').length / filteredApplications.length) * 100)
-      : 0,
-    avgResponseTime: 7, // Mock data - would calculate from actual response times
-    topCompanies: getTopCompanies(filteredApplications),
-    topLocations: getTopLocations(filteredApplications),
-    statusDistribution: getStatusDistribution(filteredApplications),
-    weeklyTrend: getWeeklyTrend(filteredApplications),
-    monthlyGoal: 20, // Mock goal
-  };
-
-  function getTopCompanies(apps: any[]) {
-    const companyCounts = apps.reduce((acc, app) => {
-      acc[app.company] = (acc[app.company] || 0) + 1;
-      return acc;
-    }, {});
-    
-    return Object.entries(companyCounts)
-      .sort(([,a], [,b]) => (b as number) - (a as number))
-      .slice(0, 5)
-      .map(([company, count]) => ({ company, count }));
-  }
-
-  function getTopLocations(apps: any[]) {
-    const locationCounts = apps.reduce((acc, app) => {
-      acc[app.location] = (acc[app.location] || 0) + 1;
-      return acc;
-    }, {});
-    
-    return Object.entries(locationCounts)
-      .sort(([,a], [,b]) => (b as number) - (a as number))
-      .slice(0, 5)
-      .map(([location, count]) => ({ location, count }));
-  }
-
-  function getStatusDistribution(apps: any[]) {
-    const statusCounts = apps.reduce((acc, app) => {
-      acc[app.status] = (acc[app.status] || 0) + 1;
-      return acc;
-    }, {});
-    
-    return Object.entries(statusCounts).map(([status, count]) => ({
-      status,
-      count,
-      percentage: Math.round(((count as number) / apps.length) * 100) || 0,
-    }));
-  }
-
-  function getWeeklyTrend(apps: any[]) {
-    const weeks = [];
-    const now = new Date();
-    
-    for (let i = 6; i >= 0; i--) {
-      const weekStart = new Date(now);
-      weekStart.setDate(now.getDate() - (i * 7));
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6);
-      
-      const weekApps = apps.filter(app => {
-        const appDate = new Date(app.appliedAt);
-        return appDate >= weekStart && appDate <= weekEnd;
+  const handleExportData = async () => {
+    try {
+      const response = await axios.get('https://joblytics.notdeveloper.in/api/export-data', {
+        headers: {
+          Authorization: localStorage.getItem('token'),
+        },
+        responseType: 'blob',
       });
       
-      weeks.push({
-        week: `Week ${7 - i}`,
-        applications: weekApps.length,
-        interviews: weekApps.filter(app => app.status === 'INTERVIEWING').length,
-      });
+      const blob = new Blob([response.data], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `joblytics-insights-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting data:', error);
     }
-    
-    return weeks;
-  }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -174,21 +156,45 @@ export default function Insights() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'APPLIED':
-        return <Clock className="h-4 w-4" />;
-      case 'INTERVIEWING':
-        return <Users className="h-4 w-4" />;
-      case 'OFFER':
-        return <CheckCircle className="h-4 w-4" />;
-      case 'REJECTED':
-        return <XCircle className="h-4 w-4" />;
-      case 'GHOSTED':
-        return <AlertCircle className="h-4 w-4" />;
+  const getInsightIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'trending-up':
+        return <TrendingUp className="h-5 w-5" />;
+      case 'target':
+        return <Target className="h-5 w-5" />;
+      case 'award':
+        return <Award className="h-5 w-5" />;
       default:
-        return <Activity className="h-4 w-4" />;
+        return <Zap className="h-5 w-5" />;
     }
+  };
+
+  const getInsightColor = (type: string) => {
+    switch (type) {
+      case 'positive':
+        return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-900 dark:text-green-100';
+      case 'warning':
+        return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-900 dark:text-yellow-100';
+      case 'info':
+        return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-100';
+      default:
+        return 'bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100';
+    }
+  };
+
+  const getTrendIcon = (trend: number) => {
+    if (trend > 0) {
+      return <TrendingUp className="h-4 w-4 text-green-600" />;
+    } else if (trend < 0) {
+      return <TrendingDown className="h-4 w-4 text-red-600" />;
+    }
+    return <Activity className="h-4 w-4 text-gray-600" />;
+  };
+
+  const getTrendColor = (trend: number) => {
+    if (trend > 0) return 'text-green-600';
+    if (trend < 0) return 'text-red-600';
+    return 'text-gray-600';
   };
 
   if (loading) {
@@ -196,6 +202,21 @@ export default function Insights() {
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error || !insightData) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center h-64 space-y-4">
+          <AlertCircle className="h-12 w-12 text-muted-foreground" />
+          <p className="text-muted-foreground">{error || 'No insights data available'}</p>
+          <Button onClick={fetchInsights} variant="outline">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Retry
+          </Button>
         </div>
       </DashboardLayout>
     );
@@ -227,7 +248,7 @@ export default function Insights() {
             <Button
               variant="outline"
               size="icon"
-              onClick={fetchApplications}
+              onClick={fetchInsights}
               disabled={refreshing}
             >
               <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
@@ -243,10 +264,12 @@ export default function Insights() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Applications</p>
-                  <p className="text-3xl font-bold text-blue-600">{metrics.totalApplications}</p>
+                  <p className="text-3xl font-bold text-blue-600">{insightData.metrics.totalApplications}</p>
                   <div className="flex items-center mt-2">
-                    <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
-                    <span className="text-sm text-green-600">+12% vs last period</span>
+                    {getTrendIcon(insightData.metrics.trends.applications)}
+                    <span className={`text-sm ml-1 ${getTrendColor(insightData.metrics.trends.applications)}`}>
+                      {insightData.metrics.trends.applications > 0 ? '+' : ''}{insightData.metrics.trends.applications}% vs last period
+                    </span>
                   </div>
                 </div>
                 <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-full">
@@ -262,10 +285,12 @@ export default function Insights() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Response Rate</p>
-                  <p className="text-3xl font-bold text-green-600">{metrics.responseRate}%</p>
+                  <p className="text-3xl font-bold text-green-600">{insightData.metrics.responseRate}%</p>
                   <div className="flex items-center mt-2">
-                    <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
-                    <span className="text-sm text-green-600">+5% vs last period</span>
+                    {getTrendIcon(insightData.metrics.trends.responseRate)}
+                    <span className={`text-sm ml-1 ${getTrendColor(insightData.metrics.trends.responseRate)}`}>
+                      {insightData.metrics.trends.responseRate > 0 ? '+' : ''}{insightData.metrics.trends.responseRate}% vs last period
+                    </span>
                   </div>
                 </div>
                 <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-full">
@@ -281,10 +306,12 @@ export default function Insights() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Interview Rate</p>
-                  <p className="text-3xl font-bold text-yellow-600">{metrics.interviewRate}%</p>
+                  <p className="text-3xl font-bold text-yellow-600">{insightData.metrics.interviewRate}%</p>
                   <div className="flex items-center mt-2">
-                    <TrendingDown className="h-4 w-4 text-red-600 mr-1" />
-                    <span className="text-sm text-red-600">-2% vs last period</span>
+                    {getTrendIcon(insightData.metrics.trends.interviewRate)}
+                    <span className={`text-sm ml-1 ${getTrendColor(insightData.metrics.trends.interviewRate)}`}>
+                      {insightData.metrics.trends.interviewRate > 0 ? '+' : ''}{insightData.metrics.trends.interviewRate}% vs last period
+                    </span>
                   </div>
                 </div>
                 <div className="p-3 bg-yellow-100 dark:bg-yellow-900/20 rounded-full">
@@ -300,10 +327,12 @@ export default function Insights() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Offer Rate</p>
-                  <p className="text-3xl font-bold text-purple-600">{metrics.offerRate}%</p>
+                  <p className="text-3xl font-bold text-purple-600">{insightData.metrics.offerRate}%</p>
                   <div className="flex items-center mt-2">
-                    <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
-                    <span className="text-sm text-green-600">+3% vs last period</span>
+                    {getTrendIcon(insightData.metrics.trends.offerRate)}
+                    <span className={`text-sm ml-1 ${getTrendColor(insightData.metrics.trends.offerRate)}`}>
+                      {insightData.metrics.trends.offerRate > 0 ? '+' : ''}{insightData.metrics.trends.offerRate}% vs last period
+                    </span>
                   </div>
                 </div>
                 <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-full">
@@ -326,25 +355,32 @@ export default function Insights() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {metrics.statusDistribution.map((item, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-3 h-3 rounded-full ${getStatusColor(item.status)}`}></div>
-                        <span className="text-sm font-medium">
-                          {ApplicationStatusLabels[item.status as keyof typeof ApplicationStatusLabels]}
-                        </span>
+                {insightData.statusDistribution.length > 0 ? (
+                  insightData.statusDistribution.map((item, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-3 h-3 rounded-full ${getStatusColor(item.status)}`}></div>
+                          <span className="text-sm font-medium">
+                            {ApplicationStatusLabels[item.status as keyof typeof ApplicationStatusLabels]}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-muted-foreground">{item.count}</span>
+                          <Badge variant="secondary" className="text-xs">
+                            {item.percentage}%
+                          </Badge>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-muted-foreground">{item.count}</span>
-                        <Badge variant="secondary" className="text-xs">
-                          {item.percentage}%
-                        </Badge>
-                      </div>
+                      <Progress value={item.percentage} className="h-2" />
                     </div>
-                    <Progress value={item.percentage} className="h-2" />
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <PieChart className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>No application data available</p>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -359,37 +395,48 @@ export default function Insights() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {metrics.weeklyTrend.map((week, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{week.week}</span>
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-1">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          <span className="text-xs text-muted-foreground">
-                            {week.applications} apps
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                          <span className="text-xs text-muted-foreground">
-                            {week.interviews} interviews
-                          </span>
+                {insightData.weeklyTrend.length > 0 ? (
+                  insightData.weeklyTrend.map((week, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{week.week}</span>
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-1">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <span className="text-xs text-muted-foreground">
+                              {week.applications} apps
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                            <span className="text-xs text-muted-foreground">
+                              {week.interviews} interviews
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      <div className="flex space-x-1 h-8">
+                        <div 
+                          className="bg-blue-500 rounded-sm flex-shrink-0 transition-all duration-300"
+                          style={{ 
+                            width: `${Math.max((week.applications / Math.max(...insightData.weeklyTrend.map(w => w.applications), 1)) * 100, 5)}%` 
+                          }}
+                        ></div>
+                        <div 
+                          className="bg-yellow-500 rounded-sm flex-shrink-0 transition-all duration-300"
+                          style={{ 
+                            width: `${Math.max((week.interviews / Math.max(...insightData.weeklyTrend.map(w => w.interviews), 1)) * 100, 2)}%` 
+                          }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="flex space-x-1 h-8">
-                      <div 
-                        className="bg-blue-500 rounded-sm flex-shrink-0 transition-all duration-300"
-                        style={{ width: `${Math.max((week.applications / Math.max(...metrics.weeklyTrend.map(w => w.applications))) * 100, 5)}%` }}
-                      ></div>
-                      <div 
-                        className="bg-yellow-500 rounded-sm flex-shrink-0 transition-all duration-300"
-                        style={{ width: `${Math.max((week.interviews / Math.max(...metrics.weeklyTrend.map(w => w.interviews))) * 100, 2)}%` }}
-                      ></div>
-                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Activity className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>No trend data available</p>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -407,8 +454,8 @@ export default function Insights() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {metrics.topCompanies.length > 0 ? (
-                  metrics.topCompanies.map((item, index) => (
+                {insightData.topCompanies.length > 0 ? (
+                  insightData.topCompanies.map((item, index) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center">
@@ -441,8 +488,8 @@ export default function Insights() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {metrics.topLocations.length > 0 ? (
-                  metrics.topLocations.map((item, index) => (
+                {insightData.topLocations.length > 0 ? (
+                  insightData.topLocations.map((item, index) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                       <div className="flex items-center space-x-3">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -471,47 +518,30 @@ export default function Insights() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <div className="flex items-start space-x-3">
-                    <TrendingUp className="h-5 w-5 text-blue-600 mt-0.5" />
-                    <div>
-                      <h4 className="font-medium text-blue-900 dark:text-blue-100">
-                        Strong Application Volume
-                      </h4>
-                      <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                        You're applying consistently. Keep up the momentum!
-                      </p>
+                {insightData.performanceInsights.length > 0 ? (
+                  insightData.performanceInsights.map((insight, index) => (
+                    <div key={index} className={`p-4 rounded-lg border ${getInsightColor(insight.type)}`}>
+                      <div className="flex items-start space-x-3">
+                        <div className={`mt-0.5 ${insight.type === 'positive' ? 'text-green-600' : insight.type === 'warning' ? 'text-yellow-600' : 'text-blue-600'}`}>
+                          {getInsightIcon(insight.icon)}
+                        </div>
+                        <div>
+                          <h4 className="font-medium">
+                            {insight.title}
+                          </h4>
+                          <p className="text-sm mt-1 opacity-90">
+                            {insight.description}
+                          </p>
+                        </div>
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Zap className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>No insights available</p>
                   </div>
-                </div>
-
-                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                  <div className="flex items-start space-x-3">
-                    <Target className="h-5 w-5 text-yellow-600 mt-0.5" />
-                    <div>
-                      <h4 className="font-medium text-yellow-900 dark:text-yellow-100">
-                        Optimize Response Rate
-                      </h4>
-                      <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                        Consider tailoring your resume for better ATS compatibility.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                  <div className="flex items-start space-x-3">
-                    <Award className="h-5 w-5 text-green-600 mt-0.5" />
-                    <div>
-                      <h4 className="font-medium text-green-900 dark:text-green-100">
-                        Great Interview Conversion
-                      </h4>
-                      <p className="text-sm text-green-700 dark:text-green-300 mt-1">
-                        Your interview skills are paying off. Keep it up!
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -526,7 +556,7 @@ export default function Insights() {
                 Monthly Application Goal
               </div>
               <Badge variant="outline">
-                {metrics.totalApplications}/{metrics.monthlyGoal} applications
+                {insightData.goalProgress.currentProgress}/{insightData.goalProgress.monthlyGoal} applications
               </Badge>
             </CardTitle>
           </CardHeader>
@@ -535,24 +565,25 @@ export default function Insights() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Progress this month</span>
                 <span className="text-sm font-medium">
-                  {Math.round((metrics.totalApplications / metrics.monthlyGoal) * 100)}% complete
+                  {insightData.goalProgress.progressPercentage}% complete
                 </span>
               </div>
               <Progress 
-                value={(metrics.totalApplications / metrics.monthlyGoal) * 100} 
+                value={insightData.goalProgress.progressPercentage} 
                 className="h-3"
               />
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">
-                  {metrics.monthlyGoal - metrics.totalApplications > 0 
-                    ? `${metrics.monthlyGoal - metrics.totalApplications} more to reach goal`
-                    : 'Goal achieved! 🎉'
+                  {insightData.goalProgress.isGoalAchieved 
+                    ? 'Goal achieved! 🎉'
+                    : `${insightData.goalProgress.monthlyGoal - insightData.goalProgress.currentProgress} more to reach goal`
                   }
                 </span>
-                <span className="text-muted-foreground">
-                  {Math.ceil((metrics.monthlyGoal - metrics.totalApplications) / 
-                    (30 - new Date().getDate()))} per day needed
-                </span>
+                {!insightData.goalProgress.isGoalAchieved && insightData.goalProgress.remainingDays > 0 && (
+                  <span className="text-muted-foreground">
+                    {insightData.goalProgress.dailyTarget} per day needed
+                  </span>
+                )}
               </div>
             </div>
           </CardContent>
@@ -565,8 +596,12 @@ export default function Insights() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2">
-                <BarChart3 className="h-6 w-6" />
+              <Button 
+                variant="outline" 
+                className="h-auto p-4 flex flex-col items-center space-y-2"
+                onClick={handleExportData}
+              >
+                <Download className="h-6 w-6" />
                 <span className="text-sm">Export Data</span>
               </Button>
               <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2">
