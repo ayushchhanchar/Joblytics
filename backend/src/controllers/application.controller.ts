@@ -20,7 +20,7 @@ export const addApplication = async (req: Request & { user?: any }, res: Respons
         role,
         jobUrl,
         location,
-        status:ApplicationStatus.APPLIED, 
+        status, 
         appliedAt: appliedAt || new Date(),
       },
     });

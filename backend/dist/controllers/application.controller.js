@@ -15,6 +15,7 @@ const prisma_1 = require("../conifg/prisma");
 const client_1 = require("@prisma/client");
 const addApplication = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const parsed = auth_application_1.addApplicationSchema.safeParse(req.body);
+    console.log("Received application data:", req.body);
     if (!parsed.success) {
         return res.status(400).json({ errors: parsed.error.flatten().fieldErrors });
     }
@@ -27,7 +28,7 @@ const addApplication = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 role,
                 jobUrl,
                 location,
-                status: client_1.ApplicationStatus.APPLIED,
+                status,
                 appliedAt: appliedAt || new Date(),
             },
         });
