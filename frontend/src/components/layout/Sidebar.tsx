@@ -37,7 +37,6 @@ const navigation = [
     name: 'Insights',
     href: '/insights',
     icon: TrendingUp,
-    comingSoon: true,
   },
   {
     name: 'Settings',
@@ -101,17 +100,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   'flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors relative group',
                   isActive
                     ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted',
-                  item.comingSoon && 'opacity-60 cursor-not-allowed'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 )}
               >
                 <item.icon className="h-5 w-5 flex-shrink-0" />
                 <span className="flex-1">{item.name}</span>
-                {item.comingSoon && (
-                  <span className="text-xs bg-muted-foreground/20 px-2 py-0.5 rounded-full">
-                    Soon
-                  </span>
-                )}
               </Link>
             );
           })}

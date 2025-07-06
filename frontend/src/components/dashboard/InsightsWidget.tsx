@@ -1,8 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { TrendingUp, BarChart3, Eye } from 'lucide-react';
+import { TrendingUp, BarChart3, Eye, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export function InsightsWidget() {
+  const navigate = useNavigate();
+
   return (
     <Card className="relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-600/5"></div>
@@ -11,39 +15,54 @@ export function InsightsWidget() {
       <CardHeader className="relative">
         <CardTitle className="flex items-center justify-between">
           <span className="flex items-center">
-            📈 Insights & Progress
-            <Badge variant="secondary" className="ml-2 text-xs">
-              Coming Soon
-            </Badge>
+            📈 Insights & Analytics
           </span>
           <Eye className="h-5 w-5 text-muted-foreground" />
         </CardTitle>
       </CardHeader>
       
       <CardContent className="relative space-y-4">
-        <div className="text-center py-8">
-          <div className="mb-4">
-            <BarChart3 className="h-16 w-16 mx-auto text-muted-foreground/50" />
+        <div className="space-y-3">
+          <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <TrendingUp className="h-4 w-4 text-blue-600" />
+              <span className="text-sm font-medium">Response Rate</span>
+            </div>
+            <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+              15%
+            </Badge>
           </div>
-          <h3 className="font-semibold mb-2">Advanced Analytics Coming Soon</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Visualize trends in your job hunt, track success rates, and get personalized insights to improve your application strategy.
-          </p>
           
-          <div className="grid gap-2 text-xs text-muted-foreground">
-            <div className="flex items-center justify-center space-x-2">
-              <TrendingUp className="h-3 w-3" />
-              <span>Application success rates</span>
+          <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <BarChart3 className="h-4 w-4 text-green-600" />
+              <span className="text-sm font-medium">Interview Rate</span>
             </div>
-            <div className="flex items-center justify-center space-x-2">
-              <BarChart3 className="h-3 w-3" />
-              <span>Industry trends & benchmarks</span>
-            </div>
-            <div className="flex items-center justify-center space-x-2">
-              <Eye className="h-3 w-3" />
-              <span>Personalized recommendations</span>
-            </div>
+            <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
+              8%
+            </Badge>
           </div>
+          
+          <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <TrendingUp className="h-4 w-4 text-purple-600" />
+              <span className="text-sm font-medium">Weekly Growth</span>
+            </div>
+            <Badge variant="secondary" className="bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">
+              +12%
+            </Badge>
+          </div>
+        </div>
+
+        <div className="pt-2">
+          <Button 
+            onClick={() => navigate('/insights')} 
+            className="w-full"
+            variant="outline"
+          >
+            View Detailed Analytics
+            <ArrowRight className="h-4 w-4 ml-2" />
+          </Button>
         </div>
       </CardContent>
     </Card>
