@@ -7,23 +7,18 @@ const footerLinks = {
     { name: 'Security', href: '/security' },
     { name: 'Roadmap', href: '/roadmap' },
   ],
-  support: [
-    { name: 'Help Center', href: '/help' },
-    { name: 'Contact Us', href: '/contact' },
-    { name: 'Status', href: '/status' },
-    { name: 'API Docs', href: '/docs' },
+  Policy: [
+     { name: 'Privacy', href: ' https://merchant.razorpay.com/policy/NXH50SOIWdDLG8/privacy' },
+    { name: 'Terms', href: 'https://merchant.razorpay.com/policy/NXH50SOIWdDLG8/terms' },
+    { name: 'Contact Us', href: ' https://merchant.razorpay.com/policy/NXH50SOIWdDLG8/contact_us' },
+    { name: 'Refund Policy', href: ' https://merchant.razorpay.com/policy/NXH50SOIWdDLG8/refund' },
+    { name: 'Shipping Policy', href: ' https://merchant.razorpay.com/policy/NXH50SOIWdDLG8/shipping' },
   ],
   company: [
     { name: 'About', href: '/about' },
     { name: 'Blog', href: '/blog' },
     { name: 'Careers', href: '/careers' },
     { name: 'Partners', href: '/partners' },
-  ],
-  legal: [
-    { name: 'Privacy', href: '/privacy' },
-    { name: 'Terms', href: '/terms' },
-    { name: 'Security', href: '/security' },
-    { name: 'Cookies', href: '/cookies' },
   ],
 };
 
@@ -77,9 +72,9 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Support</h3>
+            <h3 className="font-semibold mb-4">Policy</h3>
             <ul className="space-y-3">
-              {footerLinks.support.map((link) => (
+              {footerLinks.Policy.map((link) => (
                 <li key={link.name}>
                   <a href={link.href} className="text-muted-foreground hover:text-primary transition-colors">
                     {link.name}
@@ -100,23 +95,12 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-            
-            <h3 className="font-semibold mb-4">Legal</h3>
-            <ul className="space-y-3">
-              {footerLinks.legal.map((link) => (
-                <li key={link.name}>
-                  <a href={link.href} className="text-muted-foreground hover:text-primary transition-colors">
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
 
         <div className="border-t mt-16 pt-8 flex flex-col sm:flex-row justify-between items-center">
           <p className="text-muted-foreground text-sm">
-            © 2024 Joblytics Pro. All rights reserved.
+            © 2025 Joblytics Pro. All rights reserved.
           </p>
           <p className="text-muted-foreground text-sm mt-4 sm:mt-0">
             Made with ❤️ for job seekers everywhere
