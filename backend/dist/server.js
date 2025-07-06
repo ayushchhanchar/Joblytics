@@ -8,6 +8,7 @@ const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const application_routes_1 = __importDefault(require("./routes/application.routes"));
 const resume_routes_1 = __importDefault(require("./routes/resume.routes"));
 const user_routes_1 = __importDefault(require("./routes/user.routes"));
+const insights_routes_1 = __importDefault(require("./routes/insights.routes"));
 const cors_1 = __importDefault(require("cors"));
 require("dotenv").config();
 const app = (0, express_1.default)();
@@ -18,6 +19,7 @@ app.use("/api", auth_routes_1.default);
 app.use("/api", application_routes_1.default);
 app.use("/api/resume", resume_routes_1.default);
 app.use("/api", user_routes_1.default);
-app.listen(3000, () => {
+app.use("/api", insights_routes_1.default);
+app.listen(3000, "0.0.0.0", () => {
     console.log("Server is running on port 3000");
 });
