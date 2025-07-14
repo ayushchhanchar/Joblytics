@@ -1,5 +1,5 @@
 
-# Joblytics Pro
+# Joblytics
 
 Joblytics Pro is a full-stack, AI-augmented job application management platform that helps job seekers organize their job search, track applications, and improve their resume relevance using an ATS (Applicant Tracking System) compatibility checker.
 
@@ -60,7 +60,7 @@ Example Output:
 Clone the repo:
 
 ```bash
-git clone https://github.com/your-username/joblytics-pro.git
+git clone https://github.com/your-username/joblytics.git
 cd joblytics-pro
 ```
 
